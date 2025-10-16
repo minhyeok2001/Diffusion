@@ -22,6 +22,7 @@ All the equations required for each model are derived and explained in the READM
 AFHQ (Animal Faces-HQ) consists of 16,130 high-quality images at 512×512 resolution. Since this is a generative modeling project (not classification), minimal preprocessing is applied.
 <img width="2354" height="337" alt="image" src="https://github.com/user-attachments/assets/287be022-c4ba-4157-b4cd-24d0de5691ca" />
 
+cat : 5153, dog : 4739, wild : 4738
 
 # 📁 Directory
 
@@ -29,7 +30,7 @@ AFHQ (Animal Faces-HQ) consists of 16,130 high-quality images at 512×512 resolu
 Diffusion/
 │
 ├── data/
-│   ├── afhq/                # AFHQ dataset
+│   ├── dataset
 │   └── dataloader.py        
 ```
 
