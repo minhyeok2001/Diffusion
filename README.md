@@ -14,16 +14,16 @@ All the equations required for each model are derived and explained in the READM
 
 
 
-**All implementations are written entirely from scratch, without using any pretrained models or code generated/copied from GPT.**
+**🔥All implementations are written entirely from scratch, without using any pretrained models or code generated/copied from GPT🔥**
 
 
 
-# Dataset
+# 🐾 Dataset
 AFHQ (Animal Faces-HQ) consists of 16,130 high-quality images at 512×512 resolution. Since this is a generative modeling project (not classification), minimal preprocessing is applied.
 <img width="2354" height="337" alt="image" src="https://github.com/user-attachments/assets/287be022-c4ba-4157-b4cd-24d0de5691ca" />
 
 
-# Directory
+# 📁 Directory
 
 ```bash
 Diffusion-From-Scratch/
@@ -35,14 +35,14 @@ Diffusion-From-Scratch/
 
   
 
-# Contents
-- [1. VAE](#Variantional Auto Encoder)
-- [2. DDPM, DDIM, CFG](#ddpmddimcfg)
-- [3. Stable Diffusion](#stable-diffusion)
-- [4. DPM-Solver](#dpm-solver)
+# 📚 Contents
+- [1. VAE](vae/)
+- [2. DDPM, DDIM, CFG](ddpm_ddim_cfg/)
+- [3. Stable Diffusion](stable_diffusion/)
+- [4. DPM-Solver](dpm_solver/)
 
 
-# Experimental Results
+# 📈 Experimental Results
 
 
 
