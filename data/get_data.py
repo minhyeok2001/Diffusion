@@ -1,5 +1,4 @@
 import os
-import kaggle
 
 """
 FLOW
@@ -24,7 +23,8 @@ if not os.path.exists(DATA_PATH) :
         uploaded = files.upload()
         os.makedirs("/root/.config/kaggle", exist_ok=True)
         os.rename(list(uploaded)[0], "/root/.config/kaggle/kaggle.json") 
-        
+    
+    import kaggle
     
     print("Downloading AFHQ dataset from Kaggle...")
     kaggle.api.dataset_download_files(
