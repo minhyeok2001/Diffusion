@@ -5,7 +5,12 @@
 
 ## Process
 
+
+
 ## Loss Function Derivation
+<img width="1613" height="1000" alt="image" src="https://github.com/user-attachments/assets/0779af0f-3de2-4c1a-8013-1369b1440ce3" />
+
 
 ## Reference
+
 
