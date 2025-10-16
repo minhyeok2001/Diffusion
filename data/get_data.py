@@ -19,11 +19,21 @@ if not os.path.exists(DATA_PATH) :
 
     ## kaggle.json이 없다면, colab인 것으로 인지하고 file 업로드 요청
     else :
+        
+        if "COLAB_RELEASE_TAG" in os.environ or "COLAB_GPU" in os.environ :
+            os.makedirs("/root/.config/kaggle", exist_ok=True)
+            os.rename(list(uploaded)[0], "/root/.config/kaggle/kaggle.json") 
+        
+        """
         from google.colab import files
         uploaded = files.upload()
-        os.makedirs("/root/.config/kaggle", exist_ok=True)
-        os.rename(list(uploaded)[0], "/root/.config/kaggle/kaggle.json") 
-    
+        """
+        ## 위와같은 방식으로는 동작 불가능함을 확인. files.upload는 노트북 프론트엔드와 IPython kernel이 있어야 작동하는데 python get_data.py 이런식으로는 커널이 없으므로 x 
+        ## 고로 위 코드를 colab에서는 직접 추가.
+        
+        else :
+            raise RuntimeError("NOT in Colab, without kaggle.json")
+        
     import kaggle
     
     print("Downloading AFHQ dataset from Kaggle...")
