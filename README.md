@@ -26,14 +26,18 @@ AFHQ (Animal Faces-HQ) consists of 16,130 high-quality images at 512×512 resolu
 # 📁 Directory
 
 ```bash
-Diffusion-From-Scratch/
+Diffusion/
 │
 ├── data/
 │   ├── afhq/                # AFHQ dataset
 │   └── dataloader.py        
 ```
 
-  
+# Training Setup
+
+**Environment** : 
+
+Use A100 on google colab, ~
 
 # 📚 Contents
 - [1. VAE](vae/)
