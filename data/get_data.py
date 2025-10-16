@@ -6,7 +6,6 @@ FLOW
 1. 데이터를 찾아보고, dir 없으면 생성, 있으면 그냥 사용하는 식으로
 2. 데이터 다운시에는 kaggle 통해서 자동으로 받을 수 있도록 -> kaggle.json 활용
 https://www.kaggle.com/datasets/andrewmvd/animal-faces
-
 """
 
 DATA_PATH = "../data/dataset"
@@ -23,10 +22,10 @@ if not os.path.exists(DATA_PATH) :
     else :
         from google.colab import files
         uploaded = files.upload()
-        os.makedirs(os.path.expanduser("~/.kaggle"), exist_ok=True)
-        os.rename(list(uploaded)[0], os.path.expanduser("~/.kaggle/kaggle.json"))
-        os.system("chmod 600 ~/.kaggle/kaggle.json")     ## 아 이거는 shell이 실행하는거니까 그냥 ~를 써도 되는 반면, 위에 makedir은 python이 하는 것이므로 expanduser가 필요함 !!
-
+        os.makedirs("/root/.config/kaggle", exist_ok=True)
+        os.rename(list(uploaded)[0], "/root/.config/kaggle/kaggle.json") 
+        
+    
     print("Downloading AFHQ dataset from Kaggle...")
     kaggle.api.dataset_download_files(
         "andrewmvd/animal-faces",
