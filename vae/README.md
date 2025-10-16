@@ -24,29 +24,6 @@ Since the original Variational Encoder paper doesn’t provide an official GitHu
 
 I decided to adopt the architecture used in Hugging Face’s diffusers.AutoencoderKL.
 
-```bash
-
-from diffusers import AutoencoderKL
-
-url = "https://huggingface.co/stabilityai/sd-vae-ft-mse-original/blob/main/vae-ft-mse-840000-ema-pruned.safetensors"
-model = AutoencoderKL.from_single_file(url)
-
-print(model)
-
-"""
-...
-AutoencoderKL
-encoder :
-  1. DownEncoderBlock2D(resnets->Downsample2D) x 3
-  2. UNetMidBlock2D(Attention->resnets) x 1 
-
-
-"""
-```
-
-
-
-
 
 ## Process
 
@@ -72,6 +49,7 @@ $$
 original paper  -  https://arxiv.org/abs/1312.6114
 
 Huggingface Diffuser.AutoencoderKL  -  https://huggingface.co/docs/diffusers/api/models/autoencoderkl#diffusers.AutoencoderKL
+
 
 
 
