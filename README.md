@@ -1,8 +1,18 @@
 # 🌫️ Project overview
 
 This project focuses on generative modeling, with the main goal of implementing diffusion-related models from scratch.
-It covers a variety of models — *VAE, DDPM/DDIM, CFG, Stable Diffusion, DPM-Solver, and Flow Matching* — all trained on a single dataset, AFHQ.
-Each model will be evaluated and compared using the FID score to assess generation quality.
+
+It covers a variety of models such as 
+
+— *VAE, DDPM/DDIM, CFG, Stable Diffusion, DPM-Solver, and Flow Matching* — 
+
+which are all trained on a single dataset, AFHQ.
+
+Each model will be evaluated and compared using the FID score to assess generation quality. 
+
+All the equations required for each model are derived and explained in the README files within their respective directories.
+
+
 
 **All implementations are written entirely from scratch, without using any pretrained models or code generated/copied from GPT.**
 
@@ -33,4 +43,6 @@ Diffusion-From-Scratch/
 
 
 # Experimental Results
+
+
 
