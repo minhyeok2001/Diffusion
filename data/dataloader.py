@@ -1,0 +1,79 @@
+import torchvision.transforms as T
+import torch
+import os
+from PIL import Image
+
+"""
+상황 : data/dataset/afhq/train , val / cat dog wild 내부에 사진이 있음
+
+폴더에서 가져올때, class 명을 그냥 정수 매핑하여 가져 올 것인가?  -> CS492에서는 정수 매핑으로 받아오는 것을 확인. 이를 채용
+
+dataloader를 만들건데, 사진하고 클래스를 매핑해주는 데이터로더를 만들거임 
+
+한 배치 안에서 cat dog wild가 골고루 나왔으면 좋겠으므로, 하나씩 뽑는 방식을 채용 
+"""
+
+"""
+FLOW
+
+0. 배치 내부에 균형있게 데이터를 가져오기를 기대하므로, cat : 5153, dog : 4739, wild : 4738 를 최소 단위로 잘라서 리스트를 가져오자
+
+1. 데이터들을 리스트로 받아온다, 단 받아올때 1,2,3 정수 매핑 해두기. 리턴은 [이미지,정수값]
+
+2. 배치는 무조건 3의 배수로 진행. 
+"""
+
+
+class CustomDataset(torch.utils.data.Dataset):
+    def __init__(self):
+        super().__init__()
+        
+        # 1. 리스트 리턴하기
+        BASE_PATH = "../data/dataset/afhq/train"
+
+        category = ["cat","dog","wild"]
+        paths = {}
+        lists = {}
+        length = {}
+
+        for item in category:
+            paths[item] = os.path.join(BASE_PATH, item)
+            lists[item] = os.listdir(paths[item])
+            length[item] = len(lists[item])
+            
+        min_len = min(length["cat"],length["dog"],length['wild']) ## 4738개
+
+        self.lists = lists
+        self.category = category
+        self.min_len = min_len
+        self.basepath = BASE_PATH
+        
+    def __len__(self):
+        ## 원래는 여기서 전체 데이터셋 개수를 반환해야하지만, 3종류를 하나씩 묶어서 리턴할거임. 즉 idx 상으로는 1/3이 되어야하므로 그냥 min_len 사용
+        return self.min_len
+    
+    def __getitem__(self,idx):
+        ## 여기서는 path만 받아서, idx에 맞는걸 로드해서 리턴할 수 있도록 함 
+        imgs = []
+        labels = []
+        for category_idx,(item,category) in enumerate(zip(self.lists.values(),self.category)) :
+            path = os.path.join(self.basepath,category,item[idx])
+            img = Image.open(path).convert("RGB")
+            transform = T.ToTensor()
+            img = transform(img)
+            #print("img shape : ", img.shape) # torch.Size([3, 512, 512])
+            imgs.append(img)     ## cat : 1 , dog : 2 , wild : 3
+            labels.append(category_idx+1) 
+
+        return torch.stack(imgs,dim=0), torch.tensor(labels)
+        
+
+
+def test():
+    data = CustomDataset()
+    dataloader = torch.utils.data.DataLoader(data)
+    
+    a,b = next(iter(dataloader))
+    print(a,b)
+    
+#test()
