@@ -13,7 +13,7 @@ def run(args):
     epoch = args.epoch 
     lr = args.lr 
     batch_size = args.batch_size
-    num_workers = num_workers
+    num_workers = args.num_workers
 
     ## wandb는 우선 패스. 
     
