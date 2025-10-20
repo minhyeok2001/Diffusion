@@ -35,6 +35,8 @@ def run(args):
     
     loss_ft = VaeLoss()
 
+    checkpoint_path = "checkpoints/VAE.pth"
+    
     ## 3. train loop
     for i in range(epoch) :
         running_loss = 0.0
@@ -53,6 +55,7 @@ def run(args):
             optimizer.step()
             
             running_loss += loss.item()
+            print("Loss per batch :", loss.item())
  
         avg_train_loss = running_loss / total_len
         print(f"Epoch [{i+1}/{epoch}] | Train Loss: {avg_train_loss:.6f}")
@@ -75,9 +78,11 @@ def run(args):
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
 
         scheduler.step()
+    
         
-        
+    torch.save(model.state_dict(), checkpoint_path)
 
+    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
