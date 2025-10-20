@@ -112,6 +112,15 @@ AutoencoderKL(
     (conv_act): SiLU()
     (conv_out): Conv2d(512, 8, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
   )
+
+
+
+
+
+
+
+
+  
   (decoder): Decoder(
     (conv_in): Conv2d(4, 512, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1))
     (up_blocks): ModuleList(
