@@ -47,12 +47,13 @@ def run(args):
             cls = cls.to(device)
             
             pred, mu, sigma= model(img)
-            loss = loss_ft(img, pred, mu, sigma)
+            loss = loss_ft(pred,img, mu, sigma)
             
             loss.backward()
             optimizer.step()
             
             running_loss += loss.item()
+ 
         avg_train_loss = running_loss / total_len
         print(f"Epoch [{i+1}/{epoch}] | Train Loss: {avg_train_loss:.6f}")
     
@@ -66,7 +67,7 @@ def run(args):
                 cls = cls.to(device)
 
                 pred, mu, sigma= model(img)
-                loss = loss_ft(img, pred, mu, sigma)
+                loss = loss_ft(pred,img, mu, sigma)
                     
                 val_loss += loss.item()
         
@@ -74,6 +75,8 @@ def run(args):
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
 
         scheduler.step()
+        
+        
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -81,7 +84,7 @@ if __name__ == '__main__':
     parser.add_argument("--epoch", type=int, default=30)
     parser.add_argument("--lr", type=float, default=0.001)
     parser.add_argument("--num_workers", type=int, default=4)
-    parser.add_argument("--batch_size", type=int, default=3) # 한개가 3개의 이미지셋을 다루므로.. 배치사이즈 3만 해도 사진 9장
+    parser.add_argument("--batch_size", type=int, default=1) # 한개가 3개의 이미지셋을 다루므로.. 배치사이즈 3만 해도 사진 9장
     
     args = parser.parse_args()
     

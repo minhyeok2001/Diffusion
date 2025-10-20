@@ -1,6 +1,6 @@
 import torch 
 import torch.nn as nn
-
+import torch.nn.functional as F
 class ResnetBlock2D(nn.Module):
     def __init__(self,c_in,c_out,shortcut=False):
         super().__init__()
@@ -37,8 +37,12 @@ class Sample2D(nn.Module):
             self.module = nn.Conv2d(c,c,kernel_size=3,padding=1,stride=2)
         else :
             raise RuntimeError("Invalid up/down sampling type !!")
+                
+        self._type = type
         
     def forward(self,x):
+        if self._type =="upsampling" :
+            x = F.interpolate(x, scale_factor=2, mode="nearest")  
         x = self.module(x)
         return x
         

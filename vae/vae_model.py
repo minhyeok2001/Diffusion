@@ -122,19 +122,19 @@ class VaeDecoder(nn.Module):
         ]
         
         list_sample_params = [
-            {"c" : channels[0], "type" : "downsampling"},
-            {"c" : channels[1], "type" : "downsampling"},
+            {"c" : channels[0], "type" : "upsampling"},
+            {"c" : channels[1], "type" : "upsampling"},
+            {"c" : channels[2], "type" : "upsampling"},
         ]
 
         ## 1. UpBlocks
 
         UpDecoderBlock = []
-        for i in range(len(list_sample_params)+1):
+        for i in range(len(list_sample_params)):
             UpDecoderBlock.append(ResnetBlock2D(**list_resblock_params[3*i]))
             UpDecoderBlock.append(ResnetBlock2D(**list_resblock_params[3*i+1]))
             UpDecoderBlock.append(ResnetBlock2D(**list_resblock_params[3*i+2]))
-            if i != len(list_sample_params) :
-                UpDecoderBlock.append(Sample2D(**list_sample_params[i]))
+            UpDecoderBlock.append(Sample2D(**list_sample_params[i]))
         
         self.UpDecoderBlocks = nn.Sequential(*UpDecoderBlock)
              
