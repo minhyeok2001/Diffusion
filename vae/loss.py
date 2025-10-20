@@ -10,7 +10,8 @@ class VaeLoss(nn.Module):
         return F.mse_loss(pred,gt)
         
     def matching_term(self,mu,sigma):
-        return torch.mean(-1/2 * ( 1 + torch.log(sigma**2) - sigma**2 - mu**2 ),dim=0)
+        kl = -1/2 * ( 1 + torch.log(sigma**2) - sigma**2 - mu**2 )
+        return kl.mean()
     
     def forward(self,pred,gt,mu,sigma):
         loss = self.matching_term(mu,sigma)
