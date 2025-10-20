@@ -23,6 +23,17 @@ FLOW
 2. 배치는 무조건 3의 배수로 진행. 
 """
 
+# torch.Size([3, 3, 3, 512, 512]) 로 들어오는 문제를 방지하기 위한 함수
+def collate_ft(batch):
+    imgs_list, labels_list = zip(*batch)
+    
+    imgs = torch.stack(imgs_list, dim=0)
+    labels = torch.stack(labels_list, dim=0)
+    
+    B,K,C,H,W = imgs.shape
+    imgs = imgs.view(B*K,C,H,W) 
+    labels = labels.view(-1)         
+    return imgs, labels
 
 class CustomDataset(torch.utils.data.Dataset):
     def __init__(self,test=False):

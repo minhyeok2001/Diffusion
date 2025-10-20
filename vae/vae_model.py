@@ -174,4 +174,4 @@ class VAE(nn.Module):
         x = self.encoder(x)
         z,mu,sigma = self.latent_handler(x)
         z = self.decoder(z)
-        return z
+        return z, mu, sigma

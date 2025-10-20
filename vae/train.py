@@ -1,15 +1,15 @@
-from .vae_model import *
 import data.get_data 
 import data.dataloader 
-
+from .vae_model import *
+from .loss import *
 
 import torch
 import torch.nn as nn
 import argparse
-
+from tqdm import tqdm
 
 def run(args):
-    
+    device = "mps"
     epoch = args.epoch 
     lr = args.lr 
     batch_size = args.batch_size
@@ -19,19 +19,60 @@ def run(args):
     ## 1. Data preparation
     
     dataset = data.dataloader.CustomDataset()
-    dataloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size)
+    trainloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,collate_fn=data.dataloader.collate_ft)
     
+    valset = data.dataloader.CustomDataset(test=True)
+    valloader = torch.utils.data.DataLoader(valset,batch_size=batch_size)
     
+    ## 2. Model definition & setting stuffs..
+
+    model = VAE([64,128,256]).to(device)
+    print("model params : ",sum(item.numel() for item in model.parameters()))
+
+    optimizer = torch.optim.AdamW(model.parameters(),lr=lr)
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer,T_max=epoch)
     
-    ## 2. Model definition
+    loss_ft = VaeLoss()
 
-    model = VAE([64,128,256])
-    print(sum(item.numel() for item in model.parameters()))
+    ## 3. train loop
+    for i in range(epoch) :
+        running_loss = 0.0
+        total_len = len(trainloader)
+        for img, cls in tqdm(trainloader) :
+            model.train()
+            optimizer.zero_grad()
+            
+            img = img.to(device)
+            cls = cls.to(device)
+            
+            pred, mu, sigma= model(img)
+            loss = loss_ft(img, pred, mu, sigma)
+            
+            loss.backward()
+            optimizer.step()
+            
+            running_loss += loss.item()
+        avg_train_loss = running_loss / total_len
+        print(f"Epoch [{i+1}/{epoch}] | Train Loss: {avg_train_loss:.6f}")
+    
+        
+        val_loss = 0.0
+        val_batches = len(valloader)
+        with torch.no_grad():
+            for img, cls in tqdm(valloader):
+                model.eval()
+                img = img.to(device)
+                cls = cls.to(device)
 
+                pred, mu, sigma= model(img)
+                loss = loss_ft(img, pred, mu, sigma)
+                    
+                val_loss += loss.item()
+        
+        avg_val_loss = val_loss / val_batches
+        print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
 
-
-
-
+        scheduler.step()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
