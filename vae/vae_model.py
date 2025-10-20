@@ -108,6 +108,10 @@ class VaeDecoder(nn.Module):
         self.conv1 = nn.Conv2d(in_channels=4,out_channels=channels[0],kernel_size=3,stride=1,padding=1)
         
         list_resblock_params = [
+            
+            {"c_in": channels[0], "c_out" :channels[0]},
+            {"c_in": channels[0], "c_out" :channels[0]},
+            
             {"c_in": channels[0], "c_out" :channels[0]},
             {"c_in": channels[0], "c_out" :channels[0]},
             {"c_in": channels[0], "c_out" :channels[0]},
@@ -131,9 +135,9 @@ class VaeDecoder(nn.Module):
 
         UpDecoderBlock = []
         for i in range(len(list_sample_params)):
-            UpDecoderBlock.append(ResnetBlock2D(**list_resblock_params[3*i]))
-            UpDecoderBlock.append(ResnetBlock2D(**list_resblock_params[3*i+1]))
             UpDecoderBlock.append(ResnetBlock2D(**list_resblock_params[3*i+2]))
+            UpDecoderBlock.append(ResnetBlock2D(**list_resblock_params[3*i+3]))
+            UpDecoderBlock.append(ResnetBlock2D(**list_resblock_params[3*i+4]))
             UpDecoderBlock.append(Sample2D(**list_sample_params[i]))
         
         self.UpDecoderBlocks = nn.Sequential(*UpDecoderBlock)
@@ -141,9 +145,9 @@ class VaeDecoder(nn.Module):
         ## 2. MidBlocks
         
         self.MidBlocks = nn.Sequential(
-            Attention(c_hidden=channels[2]),
-            ResnetBlock2D(**list_resblock_params[-2]),
-            ResnetBlock2D(**list_resblock_params[-1])
+            Attention(c_hidden=channels[0]),
+            ResnetBlock2D(**list_resblock_params[0]),
+            ResnetBlock2D(**list_resblock_params[1])
         )
             
         ## 3. FinalBlocks
@@ -156,8 +160,8 @@ class VaeDecoder(nn.Module):
             
     def forward(self,x):
         x = self.conv1(x)
-        x = self.UpDecoderBlocks(x)
         x = self.MidBlocks(x)
+        x = self.UpDecoderBlocks(x)
         x = self.FinalBlocks(x)
         return x
     
