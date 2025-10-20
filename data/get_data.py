@@ -7,7 +7,7 @@ FLOW
 https://www.kaggle.com/datasets/andrewmvd/animal-faces
 """
 
-DATA_PATH = "../data/dataset"
+DATA_PATH = "data/dataset"
 
 ## 실행되는 워킹디렉토리는 아마 vae 같은 개별 폴더일 것이므로, data 폴더 내부를 검색
 if not os.path.exists(DATA_PATH) :
@@ -48,4 +48,4 @@ if not os.path.exists(DATA_PATH) :
     print("Download Complete !!")
     
     
-    
+print("get_data.py executed...")
