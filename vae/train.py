@@ -3,10 +3,27 @@ import data.dataloader
 from .vae_model import *
 from .loss import *
 
+import os
 import torch
 import torch.nn as nn
 import argparse
+
 from tqdm import tqdm
+from torchvision.utils import make_grid, save_image
+
+
+def show_prediction(valloader,model,device="cuda",sample_dir="checkpoints/val_samples"):
+    with torch.no_grad():
+        for img, cls in tqdm(valloader):
+            num_show = min(4, img.size(0))
+            originals = img[:num_show].cpu()
+            img = img.to(device)
+            pred = model(img)
+            recon = pred[:num_show].cpu()
+            stacked = torch.stack([originals, recon], dim=1).flatten(0, 1)
+            grid = make_grid(stacked, nrow=num_show, normalize=True, value_range=(0, 1))
+            save_image(grid, os.path.join(sample_dir, f"epoch_{i+1:03d}.png"))
+
 
 def run(args):
     device = "cuda"
@@ -27,7 +44,7 @@ def run(args):
     
     ## 2. Model definition & setting stuffs..
 
-    model = VAE([64,128,256]).to(device)
+    model = VAE([128,256,512]).to(device)
     print("model params : ",sum(item.numel() for item in model.parameters()))
 
     optimizer = torch.optim.AdamW(model.parameters(),lr=lr)
@@ -37,6 +54,10 @@ def run(args):
 
     checkpoint_path = "checkpoints/VAE.pth"
     
+    sample_dir = "checkpoints/val_samples"
+    os.makedirs(sample_dir, exist_ok=True)
+    os.makedirs
+
     ## 3. train loop
     for i in range(epoch) :
         running_loss = 0.0
@@ -78,8 +99,9 @@ def run(args):
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
 
         scheduler.step()
-    
-        
+
+    show_prediction(valloader=valloader,model=model)
+
     torch.save(model.state_dict(), checkpoint_path)
 
     
