@@ -102,9 +102,9 @@ def run(args):
 
         scheduler.step()
 
-    show_prediction(valloader=valloader,model=model)
-
     torch.save(model.state_dict(), checkpoint_path)
+    
+    show_prediction(valloader=valloader,model=model)
 
     
 if __name__ == '__main__':
