@@ -19,4 +19,3 @@ class VaeLoss(nn.Module):
         loss += self.reconstruction_term(pred,gt)
         return loss
     
-class a
