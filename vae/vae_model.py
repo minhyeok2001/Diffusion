@@ -86,8 +86,9 @@ class LatentHandler(nn.Module):
         #self.conv1 = nn.Conv2d(8, 8, kernel_size=(1, 1), stride=(1, 1))
         #self.conv2 = nn.Conv2d(4, 4, kernel_size=(1, 1), stride=(1, 1))
     
-    def reparameterization(self,mu,sigma):
-        return mu + torch.abs(sigma) * torch.randn_like(sigma)
+    def reparameterization(self,mu,logvar):
+        std = torch.exp(0.5 * logvar)
+        return mu + std * torch.randn_like(std)
     
     def forward(self,x):
         #x = self.conv1(x)      ## Mu, Sigma concat result

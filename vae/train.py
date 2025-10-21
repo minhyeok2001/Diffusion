@@ -24,7 +24,7 @@ def show_prediction(valloader,model,device="cuda",sample_dir="checkpoints/val_sa
             recon = pred[:num_show].cpu()
             stacked = torch.stack([originals, recon], dim=1).flatten(0, 1)
             grid = make_grid(stacked, nrow=num_show, normalize=True, value_range=(0, 1))
-            save_image(grid, os.path.join(sample_dir, f"epoch_{i+1:03d}.png"))
+            save_image(grid, os.path.join(sample_dir, f"reconstructed_img.png"))
 
 
 def run(args):
