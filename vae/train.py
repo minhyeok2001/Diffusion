@@ -94,7 +94,7 @@ def run(args):
             optimizer.step()
             
             running_loss += loss.item()
-            print("Loss per batch :", loss.item())
+            #print("Loss per batch :", loss.item())
  
         avg_train_loss = running_loss / total_len
         print(f"Epoch [{i+1}/{epoch}] | Train Loss: {avg_train_loss:.6f}")
@@ -122,7 +122,7 @@ def run(args):
                     recon = pred[:num_show].cpu()
                     stacked = torch.stack([originals, recon], dim=1).flatten(0, 1)
                     grid = make_grid(stacked, nrow=num_show, normalize=False, value_range=(0, 1))
-                    save_image(grid, os.path.join(sample_dir, f"reconstructed_img_epoch_{epoch+1}.png"))
+                    save_image(grid, os.path.join(sample_dir, f"reconstructed_img_epoch_{i+1}.png"))
             
         avg_val_loss = val_loss / val_batches
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
