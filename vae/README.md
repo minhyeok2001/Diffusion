@@ -48,13 +48,16 @@ $$
 <img width="999" height="1357" alt="image" src="https://github.com/user-attachments/assets/f7e4f469-cd13-40b7-b061-ae9091c0e8fa" />
 
 
-**Q. Why is reconstruction term intractable while matching term isn't ?**
+## Q. Why is reconstruction term intractable while matching term isn't ?**
+![IMG_7CD0FA3F711D-1](https://github.com/user-attachments/assets/13b57411-e09d-406d-b3cb-6d2914df9b4b)
 
 ## Reference
 
 original paper  -  https://arxiv.org/abs/1312.6114
 
 Huggingface Diffuser.AutoencoderKL  -  https://huggingface.co/docs/diffusers/api/models/autoencoderkl#diffusers.AutoencoderKL
+
+Q1's reference - https://www.datacamp.com/tutorial/variational-autoencoders
 
 
 
