@@ -14,17 +14,17 @@ class VaeEncoder(nn.Module):
         self.conv1 = nn.Conv2d(3,channels[0],kernel_size=3,padding=1,stride=1)
         
         list_resblock_params = [
-            {"c_in": channels[0], "c_out" :channels[0]},
-            {"c_in": channels[0], "c_out" :channels[0]},
+            {"c_in": channels[0], "c_out" :channels[0],"shortcut" : True},
+            {"c_in": channels[0], "c_out" :channels[0],"shortcut" : True},
             
             {"c_in": channels[0], "c_out" :channels[1],"shortcut" : True},
-            {"c_in": channels[1], "c_out" :channels[1]},
+            {"c_in": channels[1], "c_out" :channels[1],"shortcut" : True},
             
             {"c_in": channels[1], "c_out" :channels[2],"shortcut" : True},
-            {"c_in": channels[2], "c_out" :channels[2]},
+            {"c_in": channels[2], "c_out" :channels[2],"shortcut" : True},
             
-            {"c_in": channels[2], "c_out" :channels[2]},
-            {"c_in": channels[2], "c_out" :channels[2]},
+            {"c_in": channels[2], "c_out" :channels[2],"shortcut" : True},
+            {"c_in": channels[2], "c_out" :channels[2],"shortcut" : True},
             ]
         
         list_sample_params = [
@@ -110,20 +110,20 @@ class VaeDecoder(nn.Module):
         
         list_resblock_params = [
             
-            {"c_in": channels[0], "c_out" :channels[0]},
-            {"c_in": channels[0], "c_out" :channels[0]},
+            {"c_in": channels[0], "c_out" :channels[0],"shortcut" : True},
+            {"c_in": channels[0], "c_out" :channels[0],"shortcut" : True},
             
-            {"c_in": channels[0], "c_out" :channels[0]},
-            {"c_in": channels[0], "c_out" :channels[0]},
-            {"c_in": channels[0], "c_out" :channels[0]},
+            {"c_in": channels[0], "c_out" :channels[0],"shortcut" : True},
+            {"c_in": channels[0], "c_out" :channels[0],"shortcut" : True},
+            {"c_in": channels[0], "c_out" :channels[0],"shortcut" : True},
             
             {"c_in": channels[0], "c_out" :channels[1],"shortcut" : True},
-            {"c_in": channels[1], "c_out" :channels[1]},
-            {"c_in": channels[1], "c_out" :channels[1]},
+            {"c_in": channels[1], "c_out" :channels[1],"shortcut" : True},
+            {"c_in": channels[1], "c_out" :channels[1],"shortcut" : True},
             
             {"c_in": channels[1], "c_out" :channels[2],"shortcut" : True},
-            {"c_in": channels[2], "c_out" :channels[2]},
-            {"c_in": channels[2], "c_out" :channels[2]},
+            {"c_in": channels[2], "c_out" :channels[2],"shortcut" : True},
+            {"c_in": channels[2], "c_out" :channels[2],"shortcut" : True},
         ]
         
         list_sample_params = [

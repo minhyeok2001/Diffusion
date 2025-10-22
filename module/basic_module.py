@@ -58,7 +58,10 @@ class ResnetBlock2D(nn.Module):
         self.shortcut = shortcut
         
         if self.shortcut :
-            self.shortcut_module = nn.Conv2d(c_in,c_out,kernel_size=3,padding=1)    
+            if c_in != c_out :
+                self.shortcut_module = nn.Conv2d(c_in,c_out,kernel_size=3,padding=1)    
+            else : 
+                self.shortcut_module = nn.Identity()
             
         if time_embedding :
             self.time_embedding = TimeEmbedding(hidden_size=c_out)
@@ -110,6 +113,8 @@ class Attention(nn.Module):
         B,C,H,W = x.shape
         x = self.groupnorm(x)
         
+        identity = x
+        
         temp = x.permute(0,3,1,2).reshape(B,H*W,C)
         key = self.to_k(temp)
         query = self.to_q(temp)
@@ -123,4 +128,6 @@ class Attention(nn.Module):
         x = self.mlp(x)
         
         x = x.reshape(B,H,W,C).permute(0,3,1,2)
+        
+        x += identity
         return x
