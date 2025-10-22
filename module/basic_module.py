@@ -22,7 +22,6 @@ class TimeEmbedding(nn.Module):
     
     def timestep_Embedding(self, timestep, dim, max_period = 10000):
         ## timestep은 [N] 꼴로 입력을 받음 
-        
         if dim %2 != 0 :
             raise RuntimeError("DIM 2로 안나눠짐 -> cos sin embedding 불균형")
         device = timestep.device
@@ -44,7 +43,7 @@ class TimeEmbedding(nn.Module):
 
 
 class ResnetBlock2D(nn.Module):
-    def __init__(self,c_in,c_out,shortcut=False,time_embedding=False):
+    def __init__(self,c_in,c_out,shortcut=False,time_embedding=False, cfg = False):
         super().__init__()
         
         self.module = nn.Sequential(
@@ -64,12 +63,16 @@ class ResnetBlock2D(nn.Module):
                 self.shortcut_module = nn.Identity()
             
         if time_embedding :
-            self.time_embedding = TimeEmbedding(hidden_size=c_out)
+            self.time_embedding = TimeEmbedding(hidden_size=c_out,frequency_embedding_size=c_in)
+        
+        if cfg :
+            self.class_embedding = nn.Embedding(num_embeddings=3,embedding_dim=c_in)
 
     def forward(self,x,time_embedding=None):
         origin = x
         if time_embedding:
             x += time_embedding[:,:,None,None]
+            #x += class_embedding
         x = self.module(x)
         if self.shortcut:
             temp = self.shortcut_module(origin)

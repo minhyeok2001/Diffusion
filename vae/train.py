@@ -12,19 +12,19 @@ from tqdm import tqdm
 from torchvision.utils import make_grid, save_image
 
 
-def show_prediction(valloader,model,device="cuda",sample_dir="checkpoints/val_samples"):
+def show_prediction(valloader,model,epoch,device="cuda",sample_dir="checkpoints/val_samples"):
     with torch.no_grad():
         for img, cls in tqdm(valloader):
             num_show = min(4, img.size(0))
             originals = img[:num_show].cpu()
             img = img.to(device)
             pred, mu, sigma = model(img)
-            print("mu = ",mu)
-            print("sigma = ",sigma)
+            #print("mu = ",mu)
+            #print("sigma = ",sigma)
             recon = pred[:num_show].cpu()
             stacked = torch.stack([originals, recon], dim=1).flatten(0, 1)
             grid = make_grid(stacked, nrow=num_show, normalize=True, value_range=(0, 1))
-            save_image(grid, os.path.join(sample_dir, f"reconstructed_img.png"))
+            save_image(grid, os.path.join(sample_dir, f"reconstructed_img_epoch_{epoch}.png"))
 
 
 def run(args):
@@ -101,11 +101,13 @@ def run(args):
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
 
         scheduler.step()
+        
+        show_prediction(valloader=valloader,model=model,epoch=i)
+
 
     torch.save(model.state_dict(), checkpoint_path)
     
-    show_prediction(valloader=valloader,model=model)
-
+    
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
