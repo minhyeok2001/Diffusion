@@ -158,12 +158,15 @@ class VaeDecoder(nn.Module):
             nn.SiLU(),
             nn.Conv2d(in_channels=channels[-1],out_channels=3,kernel_size=3,stride=1,padding=1)
         )
+        
+        
             
     def forward(self,x):
         x = self.conv1(x)
         x = self.MidBlocks(x)
         x = self.UpDecoderBlocks(x)
         x = self.FinalBlocks(x)
+        x = F.sigmoid(x) ## 고민해본 결과, 굳이 -1~1 스케일링을 입력에서 해주지는 않아도 괜찮긴 한데 그렇다면 범위가 0~1이므로 최종 출력도 0~1이 되도록 설정 
         return x
     
     

@@ -12,21 +12,34 @@ from tqdm import tqdm
 from torchvision.utils import make_grid, save_image
 
 
-def show_prediction(valloader,model,epoch,device="cuda",sample_dir="checkpoints/val_samples"):
+
+def show_prediction(valloader, model, device="cuda", sample_dir="checkpoints/val_samples"):
+    model.eval()
+    os.makedirs(sample_dir, exist_ok=True)
+
+    real_dir = os.path.join(sample_dir,"real")
+    gen_dir  = os.path.join(sample_dir,"gen")
+    os.makedirs(real_dir, exist_ok=True)
+    os.makedirs(gen_dir,  exist_ok=True)
+
+    save_idx = 0
+
     with torch.no_grad():
         for img, cls in tqdm(valloader):
-            num_show = min(4, img.size(0))
-            originals = img[:num_show].cpu()
+
             img = img.to(device)
-            pred, mu, sigma = model(img)
-            #print("mu = ",mu)
-            #print("sigma = ",sigma)
-            recon = pred[:num_show].cpu()
-            stacked = torch.stack([originals, recon], dim=1).flatten(0, 1)
-            grid = make_grid(stacked, nrow=num_show, normalize=True, value_range=(0, 1))
-            save_image(grid, os.path.join(sample_dir, f"reconstructed_img_epoch_{epoch}.png"))
+            pred, mu, sigma = model(img) 
 
+            originals = img.detach().cpu()
+            recon = pred.detach().cpu()
 
+            bsz = originals.size(0)
+            for i in range(bsz):
+                save_image(originals[i], os.path.join(real_dir, f"{save_idx:06d}.png"))
+                save_image(recon[i],     os.path.join(gen_dir,  f"{save_idx:06d}.png"))
+                save_idx += 1
+                
+                
 def run(args):
     device = "cuda"
     epoch = args.epoch 
@@ -58,7 +71,7 @@ def run(args):
     
     sample_dir = "checkpoints/val_samples"
     os.makedirs(sample_dir, exist_ok=True)
-    os.makedirs
+
 
     ## 3. train loop
     for i in range(epoch) :
@@ -70,6 +83,9 @@ def run(args):
             
             img = img.to(device)
             cls = cls.to(device)
+            
+            ## VAE 만을 위한 전처리이므로, 데이터로더에서 처리하지말고 여기서 처리. 데이터로더에서는 디퓨전 구현시에도 사용해야하므로..
+            #img = img*2-1 -> 그냥 출력을 sigmoid로 감싸는 것으로 구현
             
             pred, mu, sigma= model(img)
             loss = loss_ft(pred,img, mu, sigma)
@@ -87,22 +103,33 @@ def run(args):
         val_loss = 0.0
         val_batches = len(valloader)
         with torch.no_grad():
-            for img, cls in tqdm(valloader):
+            for idx,(img, cls) in tqdm(enumerate(valloader)):
                 model.eval()
                 img = img.to(device)
                 cls = cls.to(device)
 
+                #img = img*2-1
+                
                 pred, mu, sigma= model(img)
                 loss = loss_ft(pred,img, mu, sigma)
                     
                 val_loss += loss.item()
-        
+                
+                if idx == 0 :
+                    num_show = min(4, img.size(0))
+                    originals = img[:num_show].cpu()
+                    pred, mu, sigma = model(img)
+                    recon = pred[:num_show].cpu()
+                    stacked = torch.stack([originals, recon], dim=1).flatten(0, 1)
+                    grid = make_grid(stacked, nrow=num_show, normalize=False, value_range=(0, 1))
+                    save_image(grid, os.path.join(sample_dir, f"reconstructed_img_epoch_{epoch+1}.png"))
+            
         avg_val_loss = val_loss / val_batches
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
 
         scheduler.step()
         
-        show_prediction(valloader=valloader,model=model,epoch=i)
+    show_prediction(valloader=valloader,model=model)
 
 
     torch.save(model.state_dict(), checkpoint_path)
