@@ -4,11 +4,11 @@ import torch.nn.functional as F
 
 import math
 
-## timestep t -> 삼각함수 주파수 임베딩→ mlp 투영 → hidden_size 차원의 벡터
+## timestep t -> 삼각함수 주파수 임베딩 → mlp 투영 → hidden_size 차원의 벡터
 # https://github.com/openai/glide-text2im/blob/main/glide_text2im/nn.py 참고.
 
 class TimeEmbedding(nn.Module):
-    def __init__(self,hidden_size, frequency_embedding_size = 256):
+    def __init__(self,hidden_size=128, frequency_embedding_size = 128):
         # dim은 output dim
         super().__init__()
         
@@ -27,7 +27,7 @@ class TimeEmbedding(nn.Module):
         device = timestep.device
         half = dim //2 # 반으로 나눠서 cos / sin 사용 
         #  exp ( -log(10000) * 0/half, -log(10000) * 1/half, -log(10000) * 2/half , ... )
-        freqs = torch.exp(-torch.log(max_period)* torch.arange(start=0, end=half, dtype=torch.float32) / half).to(device)
+        freqs = torch.exp(-math.log(max_period)* torch.arange(start=0, end=half, dtype=torch.float32) / half).to(device)     ## 그러니까 이게 timestep에 의존적인게 아니라, 세로로.. 즉 dim 축을 구성하기 위한 frequency
         args = timestep[:, None].float() * freqs[None]
         embedding = torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
         # [N, dim]
@@ -42,8 +42,25 @@ class TimeEmbedding(nn.Module):
         return t_emb    
 
 
+class ClassEmbedding(nn.Module):
+    def __init__(self,num_cls=4,hidden_dim=128):    ## 0 인덱스를 고려하여 4개. cfg를 위해..
+        super().__init__()
+        self.embedding = nn.Embedding(num_embeddings=num_cls,embedding_dim=hidden_dim)
+        
+        self.mlp = nn.Sequential(
+            nn.Linear(hidden_dim,hidden_dim),
+            nn.SiLU(),
+            nn.Linear(hidden_dim,hidden_dim)
+        )
+        
+    def forward(self,x):
+        x = self.embedding(x)
+        x = self.mlp(x)
+        return x
+        
+
 class ResnetBlock2D(nn.Module):
-    def __init__(self,c_in,c_out,shortcut=False,time_embedding=False, cfg = False):
+    def __init__(self,c_in,c_out,shortcut=False,time_embedding=False, cfg = False, emb_dim= 128):
         super().__init__()
         
         self.module = nn.Sequential(
@@ -61,18 +78,16 @@ class ResnetBlock2D(nn.Module):
                 self.shortcut_module = nn.Conv2d(c_in,c_out,kernel_size=3,padding=1)    
             else : 
                 self.shortcut_module = nn.Identity()
-            
+                
         if time_embedding :
-            self.time_embedding = TimeEmbedding(hidden_size=c_out,frequency_embedding_size=c_in)
-        
-        if cfg :
-            self.class_embedding = nn.Embedding(num_embeddings=3,embedding_dim=c_in)
+            self.handling_embedding_dim = nn.Linear(emb_dim,c_in)    
 
-    def forward(self,x,time_embedding=None):
+    def forward(self,x,embedding=None):
         origin = x
-        if time_embedding:
-            x += time_embedding[:,:,None,None]
-            #x += class_embedding
+        if embedding is not None:
+            emb = self.handling_embedding_dim(embedding) ## [B, C]
+            x += emb[:,:,None,None]
+            
         x = self.module(x)
         if self.shortcut:
             temp = self.shortcut_module(origin)

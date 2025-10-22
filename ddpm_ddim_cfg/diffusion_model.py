@@ -2,11 +2,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 from module.basic_module import *
 
+
+
 class UnetDown(nn.Module):
     def __init__(self,channels,cfg):
         super().__init__()
-        
-        self.conv1 = nn.Conv2d(3,channels[0],kernel_size=3,stride=1,padding=1)
         
         assert len(channels) == 3 , "Check length of channel list !!"
         assert all(channels[i] % 32 == 0 for i in range(3)), "Each channel must be multiple of 32 !! "
@@ -148,9 +148,17 @@ class DiffusionUnet(nn.Module):
         self.mid = UnetMid(channels[-1],cfg)
         self.up = UnetUp(channels[::-1],cfg)
 
+        self.time_embedding = TimeEmbedding(hidden_size=128,frequency_embedding_size=128)
+        self.cfg = cfg
+        if cfg :
+            self.cls_embedding = ClassEmbedding(num_cls=4,hidden_dim=128)
         
-    def forward(self,x,time):
-        x = self.down(x,time)
-        x = self.mid(x,time)
-        x = self.up(x,time)
+    def forward(self,x,raw_time,raw_cls=None):  ## 여기에는 single timestep이  B 차원으로 들어감
+        emb = self.time_embedding(raw_time) ## [B,dim] 
+        if self.cfg and raw_cls is not None:
+            emb += self.cls_embedding(raw_cls) ## [B,dim]  
+        
+        x = self.down(x,emb)
+        x = self.mid(x,emb)
+        x = self.up(x,emb)
         return x 
