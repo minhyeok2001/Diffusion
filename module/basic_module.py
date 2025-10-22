@@ -111,10 +111,9 @@ class Attention(nn.Module):
 
     def forward(self,x):
         B,C,H,W = x.shape
-        x = self.groupnorm(x)
         
         identity = x
-        
+        x = self.groupnorm(x)
         temp = x.permute(0,3,1,2).reshape(B,H*W,C)
         key = self.to_k(temp)
         query = self.to_q(temp)
