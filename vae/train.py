@@ -139,8 +139,8 @@ def run(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
-    parser.add_argument("--epoch", type=int, default=30)
-    parser.add_argument("--lr", type=float, default=0.001)
+    parser.add_argument("--epoch", type=int, default=10)
+    parser.add_argument("--lr", type=float, default=0.005)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--batch_size", type=int, default=1) # 한개가 3개의 이미지셋을 다루므로.. 배치사이즈 3만 해도 사진 9장
     
