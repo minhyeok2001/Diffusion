@@ -97,9 +97,9 @@ def run(args):
             optimizer.step()
             
             running_loss += loss.item()
-            print("matching term per batch :",  mt.item())
-            print("reconstruction term per batch :", rc.item())
-            print("total loss :",loss.item())
+            #print("matching term per batch :",  mt.item())
+            #print("reconstruction term per batch :", rc.item())
+            #print("total loss :",loss.item())
  
         avg_train_loss = running_loss / total_len
         print(f"Epoch [{i+1}/{epoch}] | Train Loss: {avg_train_loss:.6f}")
