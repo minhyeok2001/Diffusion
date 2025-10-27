@@ -25,13 +25,6 @@ Since the original Variational Encoder paper doesn’t provide an official GitHu
 I decided to adopt the architecture used in Hugging Face’s diffusers.AutoencoderKL.
 
 
-## Process
-
-
-
-
-
-
 ## Loss Function Derivation
 
 $$
@@ -48,8 +41,18 @@ $$
 <img width="999" height="1357" alt="image" src="https://github.com/user-attachments/assets/f7e4f469-cd13-40b7-b061-ae9091c0e8fa" />
 
 
-## Q. Why is reconstruction term intractable while matching term isn't ?**
+ ### -> Q. Why is reconstruction term intractable while matching term isn't ?
 ![IMG_7CD0FA3F711D-1](https://github.com/user-attachments/assets/13b57411-e09d-406d-b3cb-6d2914df9b4b)
+
+## Issues encountered during training
+
+1. LR은 0.001, 0.0001보다  0.00005 제일 좋음을 확인
+
+<img width="1030" height="1030" alt="unknown" src="https://github.com/user-attachments/assets/f5b7f1f5-8d2f-472d-935a-9803ba635a52" />
+
+2. 형체는 비슷하지만 여전히 FID가 낮아서, loss의 kl divergence term과 reconstruction term scaling 시도 -> matching term에 0.3 곱하여 더하기 -> 에폭을 늘릴수록 이미지가 흐려짐을 발견
+
+
 
 ## Reference
 
@@ -58,6 +61,7 @@ original paper  -  https://arxiv.org/abs/1312.6114
 Huggingface Diffuser.AutoencoderKL  -  https://huggingface.co/docs/diffusers/api/models/autoencoderkl#diffusers.AutoencoderKL
 
 Q1's reference - https://www.datacamp.com/tutorial/variational-autoencoders
+
 
 
 
