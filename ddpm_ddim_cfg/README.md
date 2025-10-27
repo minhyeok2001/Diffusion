@@ -4,7 +4,9 @@
 
 ## Loss Function Derivation
 <img width="1000" height="1478" alt="image" src="https://github.com/user-attachments/assets/4694507a-be63-4d96-944d-ec44fd7bfb00" />
+<img width="1000" height="1130" alt="image" src="https://github.com/user-attachments/assets/744be06d-959b-4cdf-91ac-f3d50e36186a" />
 
 
 ## Reference
+
 
