@@ -46,6 +46,7 @@ def run(args):
     lr = args.lr 
     batch_size = args.batch_size
     num_workers = args.num_workers
+    beta = args.beta
 
     ## wandb는 우선 패스. 
     
@@ -66,7 +67,6 @@ def run(args):
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer,T_max=epoch)
     
     loss_ft = VaeLoss()
-    beta = 0.3
 
     checkpoint_path = "checkpoints/VAE.pth"
     
@@ -149,6 +149,7 @@ if __name__ == '__main__':
     parser.add_argument("--epoch", type=int, default=10)
     parser.add_argument("--lr", type=float, default=0.005)
     parser.add_argument("--num_workers", type=int, default=4)
+    parser.add_argument("--beta", type=float, default= 0.1)
     parser.add_argument("--batch_size", type=int, default=1) # 한개가 3개의 이미지셋을 다루므로.. 배치사이즈 3만 해도 사진 9장
     
     args = parser.parse_args()
