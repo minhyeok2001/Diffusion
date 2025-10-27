@@ -66,6 +66,7 @@ def run(args):
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer,T_max=epoch)
     
     loss_ft = VaeLoss()
+    beta = 0.3
 
     checkpoint_path = "checkpoints/VAE.pth"
     
@@ -88,13 +89,17 @@ def run(args):
             #img = img*2-1 -> 그냥 출력을 sigmoid로 감싸는 것으로 구현
             
             pred, mu, sigma= model(img)
-            loss = loss_ft(pred,img, mu, sigma)
+            mt,rc = loss_ft(pred,img, mu, sigma)
+            
+            loss =  beta * mt + rc
             
             loss.backward()
             optimizer.step()
             
             running_loss += loss.item()
-            #print("Loss per batch :", loss.item())
+            print("matching term per batch :",  mt.item())
+            print("reconstruction term per batch :", rc.item())
+            print("total loss :",loss.item())
  
         avg_train_loss = running_loss / total_len
         print(f"Epoch [{i+1}/{epoch}] | Train Loss: {avg_train_loss:.6f}")
@@ -111,7 +116,9 @@ def run(args):
                 #img = img*2-1
                 
                 pred, mu, sigma= model(img)
-                loss = loss_ft(pred,img, mu, sigma)
+                mt,rc = loss_ft(pred,img, mu, sigma)
+                
+                loss =  beta * mt + rc
                     
                 val_loss += loss.item()
                 

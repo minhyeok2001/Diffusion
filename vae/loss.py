@@ -15,6 +15,7 @@ class VaeLoss(nn.Module):
         return kl.mean()
     
     def forward(self,pred,gt,mu,sigma):
-        loss = self.matching_term(mu,sigma)
-        loss += self.reconstruction_term(pred,gt)
-        return loss
+        matching_term = self.matching_term(mu,sigma)
+        reconstruction_term = self.reconstruction_term(pred,gt)
+    
+        return matching_term, reconstruction_term
