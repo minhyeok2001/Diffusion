@@ -8,5 +8,6 @@
 
 
 ## Reference
-
-
+- original paper - https://arxiv.org/abs/2006.11239
+- Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
+- CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
