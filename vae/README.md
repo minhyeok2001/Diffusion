@@ -53,6 +53,9 @@ $$
 2. 형체는 비슷하지만 여전히 FID가 낮아서, loss의 kl divergence term과 reconstruction term scaling 시도 -> matching term에 0.3 곱하여 더하기 -> 에폭을 늘릴수록 이미지가 흐려짐을 발견
 
 
+<img width="1030" height="1030" alt="image" src="https://github.com/user-attachments/assets/e073e69f-8d17-4a47-b2f8-e04549bde3db" />
+< 12시간 학습시 결과 >  , Fid score = 600
+
 
 ## Reference
 
@@ -61,6 +64,7 @@ original paper  -  https://arxiv.org/abs/1312.6114
 Huggingface Diffuser.AutoencoderKL  -  https://huggingface.co/docs/diffusers/api/models/autoencoderkl#diffusers.AutoencoderKL
 
 Q1's reference - https://www.datacamp.com/tutorial/variational-autoencoders
+
 
 
 
