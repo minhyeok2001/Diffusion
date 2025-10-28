@@ -137,8 +137,7 @@ class UnetUp(nn.Module):
                 
         x = self.conv2(x)
         return x 
-        
-             
+
 ## 기본 틀은 VAE에서 사용한 Unet과 매우 유사하게 진행.
 class DiffusionUnet(nn.Module):
     def __init__(self,channels : list = [128,256,512],cfg=False):
@@ -147,13 +146,15 @@ class DiffusionUnet(nn.Module):
         self.down = UnetDown(channels,cfg)
         self.mid = UnetMid(channels[-1],cfg)
         self.up = UnetUp(channels[::-1],cfg)
-
+        
+        
+        ## BASIC BLOCK의 dim handling을 위해서, hidden_size는 128로 고정.
         self.time_embedding = TimeEmbedding(hidden_size=128,frequency_embedding_size=128)
         self.cfg = cfg
         if cfg :
             self.cls_embedding = ClassEmbedding(num_cls=4,hidden_dim=128)
         
-    def forward(self,x,raw_time,raw_cls=None):  ## 여기에는 single timestep이  B 차원으로 들어감
+    def forward(self,x,raw_time,raw_cls=None):  ## 여기에는 single timestep이 B 차원으로 들어감
         emb = self.time_embedding(raw_time) ## [B,dim] 
         if self.cfg and raw_cls is not None:
             emb += self.cls_embedding(raw_cls) ## [B,dim]  

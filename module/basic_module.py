@@ -31,7 +31,14 @@ class TimeEmbedding(nn.Module):
         args = timestep[:, None].float() * freqs[None]
         embedding = torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
         # [N, dim]
-        return embedding         
+        
+        ### 동작과정 !!
+        # timestep에는 각 배치마다 쓸 차원이 들어옴. N은 배치사이즈와 동일해야함
+        # 1. freqs는 half 차원만큼만 만들어서 줌 
+        # 2. 들어온 timestep들에다가 이걸 세로축으로 곱하고, cos sin한걸 세로축으로 또 이어붙임
+        # 3. 결국 무슨 숫자가 어떻게 들어오던, frequency만 동일하다면 똑같은 값 나옴 즉 [10,20,30] 이나 [10,30,80]이나 10은 동일한 embedding 출력
+        
+        return embedding
     
     def forward(self,timestep):
         ## timestep 넣으면 embedding으로 치환됨
