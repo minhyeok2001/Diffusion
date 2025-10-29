@@ -158,8 +158,6 @@ class VaeDecoder(nn.Module):
             nn.SiLU(),
             nn.Conv2d(in_channels=channels[-1],out_channels=3,kernel_size=3,stride=1,padding=1)
         )
-        
-        
             
     def forward(self,x):
         x = self.conv1(x)
@@ -184,3 +182,6 @@ class VAE(nn.Module):
         z = self.decoder(z)
         
         return z, mu, sigma
+    
+model = VAE([128,256,512])
+print("model params : ",sum(item.numel() for item in model.parameters()))

@@ -44,7 +44,10 @@ class CustomDataset(torch.utils.data.Dataset):
 
         self.test = test
         self.basepath = BASE_PATH
-        
+        self.transform = T.Compose([
+                T.Resize((128, 128)),
+                T.ToTensor()
+            ])  
         if self.test :
             ## 어차피 reconstruction이니까 클래스 불균형보다는 우선 cat 남은거 많이 활용하도록 설계
             self.len = 300 ## 300개만 써보자 test로
@@ -68,10 +71,7 @@ class CustomDataset(torch.utils.data.Dataset):
             self.lists = lists
             self.category = category
             self.len = min_len
-            self.transform = T.Compose([
-                T.Resize((128, 128)),
-                T.ToTensor()
-            ])
+
         
     def __len__(self):
         ## 원래는 여기서 전체 데이터셋 개수를 반환해야하지만, 3종류를 하나씩 묶어서 리턴할거임. 즉 idx 상으로는 1/3이 되어야하므로 그냥 min_len 사용
