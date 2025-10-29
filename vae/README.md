@@ -57,6 +57,9 @@ $$
 < 12시간 학습시 결과 >  , Fid score = 600
 
 
+<img width="522" height="262" alt="image" src="https://github.com/user-attachments/assets/6318409b-95a8-4fce-9e62-b2bf39019ccd" />
+
+6hour on a100  Fid score = 149.12
 ## Reference
 
 original paper  -  https://arxiv.org/abs/1312.6114
@@ -64,6 +67,7 @@ original paper  -  https://arxiv.org/abs/1312.6114
 Huggingface Diffuser.AutoencoderKL  -  https://huggingface.co/docs/diffusers/api/models/autoencoderkl#diffusers.AutoencoderKL
 
 Q1's reference - https://www.datacamp.com/tutorial/variational-autoencoders
+
 
 
 
