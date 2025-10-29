@@ -126,12 +126,13 @@ def run(args):
                 val_loss += loss.item()
                 
                 if idx == 0 :
+                    img = (img+1)/2
+                    pred = (pred+1)/2
                     num_show = min(4, img.size(0))
                     originals = img[:num_show].cpu()
-                    pred, mu, sigma = model(img)
                     recon = pred[:num_show].cpu()
                     stacked = torch.stack([originals, recon], dim=1).flatten(0, 1)
-                    grid = make_grid(stacked, nrow=num_show, normalize=True, value_range=(0, 1))
+                    grid = make_grid(stacked, nrow=num_show, normalize=False, value_range=(0, 1))
                     save_image(grid, os.path.join(sample_dir, f"reconstructed_img_epoch_{i+1}.png"))
             
         avg_val_loss = val_loss / val_batches

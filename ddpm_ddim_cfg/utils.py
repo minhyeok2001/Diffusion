@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import random
 
 class BaseScheduler(nn.Module):
     def __init__(self,inference_step,num_timestep=1000):
@@ -9,7 +10,7 @@ class BaseScheduler(nn.Module):
         timesteps = torch.arange(num_timestep,0,-1)
         beta = torch.linspace(1e-4,2e-2,inference_step) ## 공식 논문 베타 값 기준
         alpha = 1-beta
-        cumprod_alpha = torch.cumprod(alpha)
+        cumprod_alpha = torch.cumprod(alpha,-1)
         
         ## register buffer 활용하여, 이후 체크포인트에서도 사용 가능하게
         self.register_buffer("timesteps",timesteps)
@@ -74,3 +75,14 @@ class DDPMScheduler(BaseScheduler):
         return mu, sample_prev, noise
         
     
+    
+def test():
+    scheduler = DDPMScheduler(50,None)
+    
+    x_t = torch.randn(4,3,128,128)
+    eps = torch.randn(4,3,128,128)
+    t = torch.tensor(random.sample(range(0, 11), 4))
+    print(scheduler.forward_process(x_0=x_t,t=torch.tensor(t,device="mps"),eps=eps).shape)
+    #scheduler.forward_process()
+    
+test()

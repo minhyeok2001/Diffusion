@@ -19,8 +19,11 @@ def show_prediction(valloader, model, device="cuda", sample_dir="checkpoints/val
         for img, cls in tqdm(valloader):
 
             img = img.to(device)
+        
             pred, mu, sigma = model(img) 
 
+            img = (img + 1) / 2
+            pred = (pred + 1) / 2
             originals = img.detach().cpu()
             recon = pred.detach().cpu()
 
