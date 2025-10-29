@@ -68,6 +68,10 @@ class CustomDataset(torch.utils.data.Dataset):
             self.lists = lists
             self.category = category
             self.len = min_len
+            self.transform = T.Compose([
+                T.Resize((256, 256)),
+                T.ToTensor()
+            ])
         
     def __len__(self):
         ## 원래는 여기서 전체 데이터셋 개수를 반환해야하지만, 3종류를 하나씩 묶어서 리턴할거임. 즉 idx 상으로는 1/3이 되어야하므로 그냥 min_len 사용
@@ -79,8 +83,7 @@ class CustomDataset(torch.utils.data.Dataset):
         if self.test :
             path = os.path.join(self.basepath,'cat',self.lists[idx])
             img = Image.open(path).convert("RGB")
-            transform = T.ToTensor()
-            img = transform(img)
+            img = self.transform(img)
             #print("img shape : ", img.shape) # torch.Size([3, 512, 512])
             return img, torch.tensor(1)
             
@@ -90,8 +93,7 @@ class CustomDataset(torch.utils.data.Dataset):
             for category_idx,(item,category) in enumerate(zip(self.lists.values(),self.category)) :
                 path = os.path.join(self.basepath,category,item[idx])
                 img = Image.open(path).convert("RGB")
-                transform = T.ToTensor()
-                img = transform(img)
+                img = self.transform(img)
                 #print("img shape : ", img.shape) # torch.Size([3, 512, 512])
                 imgs.append(img)     ## cat : 1 , dog : 2 , wild : 3
                 labels.append(category_idx+1) 
