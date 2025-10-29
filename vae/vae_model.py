@@ -166,7 +166,7 @@ class VaeDecoder(nn.Module):
         x = self.MidBlocks(x)
         x = self.UpDecoderBlocks(x)
         x = self.FinalBlocks(x)
-        x = F.sigmoid(x) ## 고민해본 결과, 굳이 -1~1 스케일링을 입력에서 해주지는 않아도 괜찮긴 한데 그렇다면 범위가 0~1이므로 최종 출력도 0~1이 되도록 설정 
+        #x = F.sigmoid(x) ## 고민해본 결과, 굳이 -1~1 스케일링을 입력에서 해주지는 않아도 괜찮긴 한데 그렇다면 범위가 0~1이므로 최종 출력도 0~1이 되도록 설정 
         return x
     
     
@@ -182,4 +182,5 @@ class VAE(nn.Module):
         x = self.encoder(x)
         z,mu,sigma = self.latent_handler(x)
         z = self.decoder(z)
+        
         return z, mu, sigma

@@ -69,7 +69,7 @@ class CustomDataset(torch.utils.data.Dataset):
             self.category = category
             self.len = min_len
             self.transform = T.Compose([
-                T.Resize((256, 256)),
+                T.Resize((128, 128)),
                 T.ToTensor()
             ])
         

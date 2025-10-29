@@ -85,6 +85,8 @@ def run(args):
             img = img.to(device)
             cls = cls.to(device)
             
+            img = img*2-1
+            
             ## VAE 만을 위한 전처리이므로, 데이터로더에서 처리하지말고 여기서 처리. 데이터로더에서는 디퓨전 구현시에도 사용해야하므로..
             #img = img*2-1 -> 그냥 출력을 sigmoid로 감싸는 것으로 구현
             
@@ -112,12 +114,13 @@ def run(args):
                 model.eval()
                 img = img.to(device)
                 cls = cls.to(device)
-
-                #img = img*2-1
+                img = img*2-1
                 
                 pred, mu, sigma= model(img)
-                mt,rc = loss_ft(pred,img, mu, sigma)
+
+                mt,rc = loss_ft(pred, img, mu, sigma)
                 
+                #pred = (pred + 1)/2
                 loss =  beta * mt + rc
                     
                 val_loss += loss.item()
@@ -128,7 +131,7 @@ def run(args):
                     pred, mu, sigma = model(img)
                     recon = pred[:num_show].cpu()
                     stacked = torch.stack([originals, recon], dim=1).flatten(0, 1)
-                    grid = make_grid(stacked, nrow=num_show, normalize=False, value_range=(0, 1))
+                    grid = make_grid(stacked, nrow=num_show, normalize=True, value_range=(0, 1))
                     save_image(grid, os.path.join(sample_dir, f"reconstructed_img_epoch_{i+1}.png"))
             
         avg_val_loss = val_loss / val_batches
