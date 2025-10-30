@@ -125,7 +125,7 @@ def run(args):
                 
                 img = img * 2 - 1
                 
-                t_idx =torch.randint(0,len(ddpm_scheduler.timesteps),batch_size, device=device)
+                t_idx =torch.randint(0,len(ddpm_scheduler.timesteps),(img.shape[0],), device=device)
                 
                 x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t_idx],x_0=img)
                 
