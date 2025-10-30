@@ -44,26 +44,58 @@ $$
  ### -> Q. Why is reconstruction term intractable while matching term isn't ?
 ![IMG_7CD0FA3F711D-1](https://github.com/user-attachments/assets/13b57411-e09d-406d-b3cb-6d2914df9b4b)
 
-## Issues encountered during training
+## Experiments & Ablation Study
 
-1. LR은 0.001, 0.0001보다  0.00005 제일 좋음을 확인
+- 6 hours in Colab using A100
+```bash
+ python -m vae.train --batch_size 32 --lr 0.0001 --epoch 150 
+```
 
-<img width="1030" height="1030" alt="unknown" src="https://github.com/user-attachments/assets/f5b7f1f5-8d2f-472d-935a-9803ba635a52" />
+Due to the relatively low FID score, I referred to the paper “β-VAE”.
 
-2. 형체는 비슷하지만 여전히 FID가 낮아서, loss의 kl divergence term과 reconstruction term scaling 시도 -> matching term에 0.3 곱하여 더하기 -> 에폭을 늘릴수록 이미지가 흐려짐을 발견
+The paper suggests that introducing a β coefficient on kl divergence term in loss function helps the model learn a more disentangled representation, leading to better performance.
+
+Therefore, I conducted an ablation study comparing models with and without the β term, and the results are shown above.
+
+All training process, results are available in **_VAE.ipynb_** and **_VAE_No_beta_ver.ipynb_**
 
 
-<img width="1030" height="1030" alt="image" src="https://github.com/user-attachments/assets/e073e69f-8d17-4a47-b2f8-e04549bde3db" />
-< 12시간 학습시 결과 >  , Fid score = 600
+<table>
+  <tr>
+    <th>Model</th>
+    <th>FID Score</th>
+    <th>Visualization ( randomly sampled in train set )</th>
+  </tr>
+  <tr>
+    <td>w/o β coefficient</td>
+    <td>388.65</td>
+    <td>
+        <div align="center">    
+          <img width="250" alt="w/o beta" src="https://github.com/user-attachments/assets/4b4555cd-1cfa-42cb-9eed-3b202a7db5fb" />
+    </td>
+  </tr>
+  <tr>
+    <td>w/ β coefficient (β=0.3)</td>
+    <td>149.12</td>
+    <td>
+        <div align="center">
+          <img width="250" alt="with beta" src="https://github.com/user-attachments/assets/6318409b-95a8-4fce-9e62-b2bf39019ccd" />
+    </td>
+  </tr>
+</table>
 
-
+            
 ## Reference
 
 original paper  -  https://arxiv.org/abs/1312.6114
 
 Huggingface Diffuser.AutoencoderKL  -  https://huggingface.co/docs/diffusers/api/models/autoencoderkl#diffusers.AutoencoderKL
 
-Q1's reference - https://www.datacamp.com/tutorial/variational-autoencoders
+Q's reference - https://www.datacamp.com/tutorial/variational-autoencoders
+
+β vae paper - https://openreview.net/forum?id=Sy2fzU9gl
+
+
 
 
 
