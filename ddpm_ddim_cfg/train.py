@@ -18,7 +18,7 @@ def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoi
     img, cls =next(iter(valloader))
     img = img.to(device)
     cls = cls.to(device)
-    t_len = len(ddpm_scheduler.timestep)
+    t_len = len(ddpm_scheduler.timesteps)
     x_t = torch.randn_like(img) ## 어차피 처음엔 노이즈니까 이렇게 고고 
     
     snap_idxs = torch.linspace(0, t_len - 1, steps=10).round().long().tolist()
@@ -92,7 +92,7 @@ def run(args):
             t_idx =torch.randint(0,len(ddpm_scheduler.timesteps),(batch_size,), device=device)
             
             ## 2. 해당 t에 맞게 forward process를 한다 with noise_gt
-            x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timestep[t_idx],x_0=img)
+            x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t_idx],x_0=img)
             
             ## 3. noise 예측 Unet
             noise_pred = model(x=x_t,t=ddpm_scheduler[t_idx])
@@ -129,10 +129,9 @@ def run(args):
             
         avg_val_loss = val_loss / val_batches
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
-
-
         scheduler.step()
-
+        
+        show_prediction(step=i,valloader=valloader,ddpm_scheduler=ddpm_scheduler,model=model,device=device)
 
 
     torch.save(model.state_dict(), checkpoint_path)
