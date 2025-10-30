@@ -81,6 +81,7 @@ def run(args):
     ## method : 배치사이즈만큼의 time step을 랜덤으로 만든다 -> 해당 타임스텝에서의 forward process를 가져온다 -> 그걸 넣고 노이즈를 예측하도록 한다 
     
     for i in range(epoch) :
+        """
         model.train()
         running_loss = 0.0
         total_len = len(trainloader)
@@ -113,7 +114,7 @@ def run(args):
  
         avg_train_loss = running_loss / total_len
         print(f"Epoch [{i+1}/{epoch}] | Train Loss: {avg_train_loss:.6f}")
-    
+        """
         
         val_loss = 0.0
         val_batches = len(valloader)
