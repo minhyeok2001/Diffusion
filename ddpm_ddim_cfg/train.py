@@ -96,7 +96,7 @@ def run(args):
             x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t_idx],x_0=img)
             
             ## 3. noise 예측 Unet
-            noise_pred = model(x=x_t,t=ddpm_scheduler[t_idx])
+            noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t_idx])
 
             loss = loss_ft(noise_pred,noise_gt)
             
@@ -120,9 +120,9 @@ def run(args):
                 
                 t_idx =torch.randint(0,len(ddpm_scheduler.timesteps),batch_size, device=device)
                 
-                x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler[t_idx],x_0=img)
+                x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t_idx],x_0=img)
                 
-                noise_pred = model(x=x_t,t=ddpm_scheduler[t_idx])
+                noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t_idx])
 
                 loss = loss_ft(noise_pred,noise_gt)
 
