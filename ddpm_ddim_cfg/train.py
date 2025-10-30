@@ -79,10 +79,10 @@ def run(args):
     ## method : 배치사이즈만큼의 time step을 랜덤으로 만든다 -> 해당 타임스텝에서의 forward process를 가져온다 -> 그걸 넣고 노이즈를 예측하도록 한다 
     
     for i in range(epoch) :
+        model.train()
         running_loss = 0.0
         total_len = len(trainloader)
         for img, cls in tqdm(trainloader) :
-            model.train()
             optimizer.zero_grad()
             
             img = img.to(device)
@@ -91,13 +91,22 @@ def run(args):
             ## 1. timestep을 만든다
             ### 아하 !! 우리는 그 collate_fn 직접 만들어서 3개 동시에 넣어줬으니까, 이거 배치사이즈로 만들면 안되고 3 곱해서 해야지. 실제로 배치사이즈가 3이면 9개 이미지 들어가는거니까
             t_idx =torch.randint(0,len(ddpm_scheduler.timesteps),(batch_size*3,), device=device)
+            print("t_idx_shape: ", t_idx.shape)
+            print("t_idx : ", t_idx)
             
             ## 2. 해당 t에 맞게 forward process를 한다 with noise_gt
             x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t_idx],x_0=img)
+            print("x_t_shape : ", x_t.shape)
+            print("x_t : ", x_t)
+            print("noist_gt_shape : ",noise_gt.shape)
+            print("noist_gt : ",noise_gt)
             
             ## 3. noise 예측 Unet
             noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t_idx])
 
+            print("noist_pred_shape : ",noise_pred.shape)
+            print("noist_pred : ",noise_pred)
+            
             loss = loss_ft(noise_pred,noise_gt)
             
             loss.backward()
