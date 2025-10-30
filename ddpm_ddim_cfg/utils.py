@@ -65,7 +65,7 @@ class DDPMScheduler(BaseScheduler):
         ## 만약 0번쨰 타임스텝이 들어온다고 치면.. 안될거같은데. --> sampling할때 이건 빼자 -.ㅡ 아하.... 이걸로 하지말고, alpha 를 직접 조절하는 방식으로 채택. 얘는 1이어도 괜찮으니가
         #t_prev = torch.cat([torch.tensor([1.0],device=x_t.device),self.timesteps[:-1].to(x_t.device)],dim=-1)[t]
         
-        alpha_bar_prev = torch.cat([torch.tensor([1.0],device=x_t.device),self.cumprod_alpha[:-1]],dim=0)[t]
+        alpha_bar_prev = self.teeth(torch.cat([torch.tensor([1.0],device=x_t.device),self.cumprod_alpha[:-1]],dim=0),t)
         
         sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha)
         ## t_prev 구하는 법은, ddim의 경우에는 t-1이 아닐 수 있으므로 그렇게 하면 안되고, timestep을 한칸 밀어서 거기서 t 추출하도록 해야함
