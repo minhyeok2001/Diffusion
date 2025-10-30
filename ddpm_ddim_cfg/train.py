@@ -55,7 +55,7 @@ def run(args):
     cfg = args.cfg
     
     dataset = data.dataloader.CustomDataset()
-    trainloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,collate_fn=data.dataloader.collate_ft,num_workers= num_workers)
+    trainloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,collate_fn=data.dataloader.collate_ft,num_workers= num_workers,shuffle=True)
     
     valset = data.dataloader.CustomDataset(test=True)
     valloader = torch.utils.data.DataLoader(valset,batch_size=batch_size,num_workers= num_workers,shuffle=False)
