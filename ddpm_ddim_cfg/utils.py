@@ -7,10 +7,12 @@ class BaseScheduler(nn.Module):
         super().__init__()
         ## 스케줄러에는 시간을 넣으면 해당 시점에서의 cumprod들이 나와줘야하는데
         ## timesteps = torch.arange(num_timestep,0,-1) -> 이렇게 해버리면, DDIM에서는 재활용하기 힘들 수 있을 것 같은데? 그치만 일단 진행
-        timesteps = torch.arange(num_timestep,0,-1,device=device)
-        beta = torch.linspace(1e-4,2e-2,inference_step,device=device) ## 공식 논문 베타 값 기준
+        timesteps = torch.arange(num_timestep-1,-1,-1,device=device)
+        beta = torch.linspace(1e-4,2e-2,num_timestep,device=device) ## 공식 논문 베타 값 기준
         alpha = 1-beta
         cumprod_alpha = torch.cumprod(alpha,-1)
+        
+        #print("cum",cumprod_alpha)
         
         ## register buffer 활용하여, 이후 체크포인트에서도 사용 가능하게
         self.register_buffer("timesteps",timesteps)
@@ -60,9 +62,10 @@ class DDPMScheduler(BaseScheduler):
         
         mu = 1 / torch.sqrt(alpha) * (x_t - (1-alpha) / torch.sqrt(1-alpha_bar) * eps)
         
-        t_prev = torch.cat([torch.tensor([1],device=x_t.device),self.timesteps[:-1].to(x_t.device)],dim=-1)[t]
+        ## 만약 0번쨰 타임스텝이 들어온다고 치면.. 안될거같은데. --> sampling할때 이건 빼자 -.ㅡ 아하.... 이걸로 하지말고, alpha 를 직접 조절하는 방식으로 채택. 얘는 1이어도 괜찮으니가
+        #t_prev = torch.cat([torch.tensor([1.0],device=x_t.device),self.timesteps[:-1].to(x_t.device)],dim=-1)[t]
         
-        alpha_bar_prev = self.teeth(self.cumprod_alpha,t_prev)
+        alpha_bar_prev = torch.cat([torch.tensor([1.0]),self.cumprod_alpha[:-1]],dim=0)[t]
         
         sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha)
         ## t_prev 구하는 법은, ddim의 경우에는 t-1이 아닐 수 있으므로 그렇게 하면 안되고, timestep을 한칸 밀어서 거기서 t 추출하도록 해야함
@@ -81,8 +84,8 @@ def test():
     
     t = torch.tensor(random.sample(range(0, 11), 4), device="mps")
     
-    print(t.shape)
-    print(scheduler.forward_process(x_0=x_t,t=t,eps=eps))
-    print(scheduler.reverse_process(x_t=x_t,t=t,eps=eps))
+    #print(t.shape)
+    #print(scheduler.forward_process(x_0=x_t,t=t,eps=eps))
+    #print(scheduler.reverse_process(x_t=x_t,t=t,eps=eps))
     
 #test()

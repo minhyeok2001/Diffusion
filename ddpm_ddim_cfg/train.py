@@ -18,6 +18,7 @@ def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoi
     img, cls =next(iter(valloader))
     img = img.to(device)
     cls = cls.to(device)
+    img = img * 2 - 1
     t_len = len(ddpm_scheduler.timesteps)
     x_t = torch.randn_like(img) ## 어차피 처음엔 노이즈니까 이렇게 고고 
     
@@ -35,10 +36,11 @@ def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoi
         
             t_idx_int = int(t[0].item())
             if t_idx_int in snap_idxs:
-                snapshots.append(x_t[:min(8, x_t.size(0))])
+                x_t_1 = (x_t_1 +1 )/2
+                snapshots.append(x_t_1[:min(8, x_t_1.size(0))])
 
     samples = torch.cat(snapshots, dim=-1)
-    grid = make_grid(samples, nrow=1, normalize=True, value_range=(-1, 1))
+    grid = make_grid(samples, nrow=1, normalize=False)
     os.makedirs(out_dir, exist_ok=True)
     save_image(grid, os.path.join(out_dir, f"iter_{step}_timeline.png"))
                             
@@ -88,25 +90,19 @@ def run(args):
             img = img.to(device)
             cls = cls.to(device)
             
+            ## diffusion도 vae와 마찬가지로 입력을 -1~1 바꾸기. 어차피 마지막 layer에 tanh도 없으므로 ..
+            img = img * 2 - 1
+            
             ## 1. timestep을 만든다
             ### 아하 !! 우리는 그 collate_fn 직접 만들어서 3개 동시에 넣어줬으니까, 이거 배치사이즈로 만들면 안되고 3 곱해서 해야지. 실제로 배치사이즈가 3이면 9개 이미지 들어가는거니까
             t_idx =torch.randint(0,len(ddpm_scheduler.timesteps),(batch_size*3,), device=device)
-            print("t_idx_shape: ", t_idx.shape)
-            print("t_idx : ", t_idx)
-            
+
             ## 2. 해당 t에 맞게 forward process를 한다 with noise_gt
             x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t_idx],x_0=img)
-            print("x_t_shape : ", x_t.shape)
-            print("x_t : ", x_t)
-            print("noist_gt_shape : ",noise_gt.shape)
-            print("noist_gt : ",noise_gt)
-            
+
             ## 3. noise 예측 Unet
             noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t_idx])
 
-            print("noist_pred_shape : ",noise_pred.shape)
-            print("noist_pred : ",noise_pred)
-            
             loss = loss_ft(noise_pred,noise_gt)
             
             loss.backward()
@@ -126,6 +122,8 @@ def run(args):
                 model.eval()
                 img = img.to(device)
                 cls = cls.to(device)
+                
+                img = img * 2 - 1
                 
                 t_idx =torch.randint(0,len(ddpm_scheduler.timesteps),batch_size, device=device)
                 
@@ -152,7 +150,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
     parser.add_argument("--epoch", type=int, default=1000)
-    parser.add_argument("--lr", type=float, default=0.005)
+    parser.add_argument("--lr", type=float, default=0.0001)
     parser.add_argument("--cfg", type=bool, default=False)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--batch_size", type=int, default=1) 
