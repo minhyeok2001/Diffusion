@@ -60,6 +60,7 @@ def run(args):
     valset = data.dataloader.CustomDataset(test=True)
     valloader = torch.utils.data.DataLoader(valset,batch_size=batch_size,num_workers= num_workers,shuffle=False)
     
+    visual_valloader = torch.utils.data.DataLoader(valset,batch_size=1,num_workers= num_workers,shuffle=False)
     ## 2. Model definition & setting stuffs..
     
     model = DiffusionUnet(cfg=cfg).to(device)
@@ -140,7 +141,7 @@ def run(args):
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
         scheduler.step()
         
-        show_prediction(step=i,valloader=valloader,ddpm_scheduler=ddpm_scheduler,model=model,device=device)
+        show_prediction(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,device=device)
 
 
     torch.save(model.state_dict(), checkpoint_path)
