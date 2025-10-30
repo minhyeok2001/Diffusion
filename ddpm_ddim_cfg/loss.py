@@ -8,4 +8,3 @@ class DiffusionLoss(nn.Module):
     
     def forward(self,pred,gt):
         return F.mse_loss(pred,gt)
-        

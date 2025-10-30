@@ -3,12 +3,12 @@ import torch.nn as nn
 import random
 
 class BaseScheduler(nn.Module):
-    def __init__(self,inference_step,num_timestep=1000):
+    def __init__(self,inference_step,device,num_timestep=1000):
         super().__init__()
         ## 스케줄러에는 시간을 넣으면 해당 시점에서의 cumprod들이 나와줘야하는데
         ## timesteps = torch.arange(num_timestep,0,-1) -> 이렇게 해버리면, DDIM에서는 재활용하기 힘들 수 있을 것 같은데? 그치만 일단 진행
-        timesteps = torch.arange(num_timestep,0,-1)
-        beta = torch.linspace(1e-4,2e-2,inference_step) ## 공식 논문 베타 값 기준
+        timesteps = torch.arange(num_timestep,0,-1,device=device)
+        beta = torch.linspace(1e-4,2e-2,inference_step,device=device) ## 공식 논문 베타 값 기준
         alpha = 1-beta
         cumprod_alpha = torch.cumprod(alpha,-1)
         
@@ -21,29 +21,29 @@ class BaseScheduler(nn.Module):
         ## timestep이랑 alpha, cumprod_alpha같은거 넣으면 거기에 맞는거 뽑아주는 함수
         ## const : [ linspace 한거만큼의 dim ],  t : [ B ]
         const = const.to(t.device)
-        return torch.gather(const,t).reshape(-1,1,1,1)
+        return const.gather(-1,t).reshape(-1,1,1,1)
 
 
 class DDPMScheduler(BaseScheduler):
-    def __init__(self,inference_step,network):
-        super().__init__(inference_step)
-        self.network = network
+    def __init__(self,inference_step,device):
+        super().__init__(inference_step,device)
         
     def forward_process(self,t,x_0,eps=None):
         """
         <add noise 과정>
         timestep , x_0, eps  필요
         """
-        if eps is None :
-            eps = torch.randn_like(x_0)
             
         alpha_bar = self.teeth(self.cumprod_alpha,t)
+    
+        if eps is None :
+            eps = torch.randn_like(x_0)
         
         x_t = torch.sqrt(alpha_bar) * x_0 + torch.sqrt(1 - alpha_bar) * eps 
         
         return x_t, eps
     
-    def reverse_process(self,t,x_t,eps,noise):
+    def reverse_process(self,t,x_t,eps,noise=None):
         """
         base -> eps predictor network, not mu predictor 
         
@@ -60,7 +60,7 @@ class DDPMScheduler(BaseScheduler):
         
         mu = 1 / torch.sqrt(alpha) * (x_t - (1-alpha) / torch.sqrt(1-alpha_bar) * eps)
         
-        t_prev = torch.cat(torch.tensor([1.0]),self.timesteps[:-1],dim=-1)[t]
+        t_prev = torch.cat([torch.tensor([1],device=x_t.device),self.timesteps[:-1].to(x_t.device)],dim=-1)[t]
         
         alpha_bar_prev = self.teeth(self.cumprod_alpha,t_prev)
         
@@ -74,15 +74,15 @@ class DDPMScheduler(BaseScheduler):
 
         return mu, sample_prev, noise
         
-    
-    
 def test():
     scheduler = DDPMScheduler(50,None)
+    x_t = torch.randn(4,3,128,128,device="mps")
+    eps = torch.randn(4,3,128,128,device="mps")
     
-    x_t = torch.randn(4,3,128,128)
-    eps = torch.randn(4,3,128,128)
-    t = torch.tensor(random.sample(range(0, 11), 4))
-    print(scheduler.forward_process(x_0=x_t,t=torch.tensor(t,device="mps"),eps=eps).shape)
-    #scheduler.forward_process()
+    t = torch.tensor(random.sample(range(0, 11), 4), device="mps")
     
-test()
+    print(t.shape)
+    print(scheduler.forward_process(x_0=x_t,t=t,eps=eps))
+    print(scheduler.reverse_process(x_t=x_t,t=t,eps=eps))
+    
+#test()
