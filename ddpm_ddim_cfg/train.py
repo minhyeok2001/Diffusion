@@ -97,13 +97,13 @@ def run(args):
             
             ## 1. timestep을 만든다
             ### 아하 !! 우리는 그 collate_fn 직접 만들어서 3개 동시에 넣어줬으니까, 이거 배치사이즈로 만들면 안되고 3 곱해서 해야지. 실제로 배치사이즈가 3이면 9개 이미지 들어가는거니까
-            t_idx =torch.randint(0,len(ddpm_scheduler.timesteps),(img.shape[0],), device=device)
+            t =torch.randint(0,len(ddpm_scheduler.timesteps),(img.shape[0],), device=device) ## 이게 t idx가 아니라 그냥 t인가?
 
             ## 2. 해당 t에 맞게 forward process를 한다 with noise_gt
-            x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t_idx],x_0=img)
+            x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t],x_0=img)
 
             ## 3. noise 예측 Unet
-            noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t_idx])
+            noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t])
 
             loss = loss_ft(noise_pred,noise_gt)
             
@@ -119,19 +119,19 @@ def run(args):
         
         val_loss = 0.0
         val_batches = len(valloader)
+        model.eval()
         with torch.no_grad():
             for idx,(img, cls) in tqdm(enumerate(valloader)):
-                model.eval()
                 img = img.to(device)
                 cls = cls.to(device)
                 
                 img = img * 2 - 1
                 
-                t_idx =torch.randint(0,len(ddpm_scheduler.timesteps),(img.shape[0],), device=device)
+                t =torch.randint(0,len(ddpm_scheduler.timesteps),(img.shape[0],), device=device)
                 
-                x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t_idx],x_0=img)
+                x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t],x_0=img)
                 
-                noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t_idx])
+                noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t])
 
                 loss = loss_ft(noise_pred,noise_gt)
 
