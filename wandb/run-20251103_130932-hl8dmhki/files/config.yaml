@@ -1,0 +1,42 @@
+_wandb:
+    value:
+        cli_version: 0.22.3
+        e:
+            pb9e5thxbr2qcz9nn67bdajex44ctjeq:
+                email: mhroh01@naver.com
+                executable: /opt/homebrew/Caskroom/miniforge/base/envs/cs492/bin/python
+                git:
+                    commit: acb479d77dee6ab4dfb77a31fbf3c1ac7e17f185
+                    remote: https://github.com/minhyeok2001/Diffusion
+                host: minhyeokroh.local
+                os: macOS-26.0.1-arm64-arm-64bit
+                program: -m ddpm_ddim_cfg.train
+                python: CPython 3.9.23
+                root: /Users/minhyeokroh/Documents/programming/Diffusion
+                startedAt: "2025-11-03T04:09:32.831010Z"
+                writerId: pb9e5thxbr2qcz9nn67bdajex44ctjeq
+        m: []
+        python_version: 3.9.23
+        t:
+            "1":
+                - 1
+                - 41
+            "2":
+                - 1
+                - 41
+            "3":
+                - 16
+            "4": 3.9.23
+            "5": 0.22.3
+            "8":
+                - 2
+            "12": 0.22.3
+            "13": darwin-arm64
+batch_size:
+    value: 1
+epochs:
+    value: 1000
+lr:
+    value: 0.0001
+num_workers:
+    value: 4

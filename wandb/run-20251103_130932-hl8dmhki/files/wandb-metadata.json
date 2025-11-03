@@ -1,0 +1,15 @@
+{
+  "os": "macOS-26.0.1-arm64-arm-64bit",
+  "python": "CPython 3.9.23",
+  "startedAt": "2025-11-03T04:09:32.831010Z",
+  "program": "-m ddpm_ddim_cfg.train",
+  "git": {
+    "remote": "https://github.com/minhyeok2001/Diffusion",
+    "commit": "acb479d77dee6ab4dfb77a31fbf3c1ac7e17f185"
+  },
+  "email": "mhroh01@naver.com",
+  "root": "/Users/minhyeokroh/Documents/programming/Diffusion",
+  "host": "minhyeokroh.local",
+  "executable": "/opt/homebrew/Caskroom/miniforge/base/envs/cs492/bin/python",
+  "writerId": "pb9e5thxbr2qcz9nn67bdajex44ctjeq"
+}

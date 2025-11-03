@@ -54,6 +54,14 @@ def run(args):
     
     ## 이렇게 하면 안되지만, colab 이용해야하므로 ..,,
     wandb.login(key="08198b7be027ddffa5241b9acf2f45cd4d42e993")
+    
+    device = "cuda"
+    epoch = args.epoch 
+    lr = args.lr 
+    batch_size = args.batch_size
+    num_workers = args.num_workers
+    cfg = args.cfg
+    
     wandb.init(
         project="Diffusion",
         config={
@@ -63,14 +71,6 @@ def run(args):
             "num_workers": num_workers
         }
     )
-    
-    device = "cuda"
-    epoch = args.epoch 
-    lr = args.lr 
-    batch_size = args.batch_size
-    num_workers = args.num_workers
-    cfg = args.cfg
-    
     dataset = data.dataloader.CustomDataset()
     trainloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,collate_fn=data.dataloader.collate_ft,num_workers= num_workers,shuffle=True)
     
@@ -165,6 +165,9 @@ def run(args):
 
 
     torch.save(model.state_dict(), checkpoint_path)
+    
+    
+    wandb.finish()
     
     
     
