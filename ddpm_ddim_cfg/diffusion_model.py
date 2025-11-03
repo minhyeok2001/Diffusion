@@ -140,7 +140,7 @@ class UnetUp(nn.Module):
 
 ## 기본 틀은 VAE에서 사용한 Unet과 매우 유사하게 진행.
 class DiffusionUnet(nn.Module):
-    def __init__(self,channels : list = [128,256,512],cfg=False):
+    def __init__(self,channels : list = [128,256,512],cfg=False, cfg_dropout=0.2):
         super().__init__()
 
         self.down = UnetDown(channels,cfg)
@@ -150,12 +150,18 @@ class DiffusionUnet(nn.Module):
         ## BASIC BLOCK의 dim handling을 위해서, hidden_size는 128로 고정.
         self.time_embedding = TimeEmbedding(hidden_size=128,frequency_embedding_size=128)
         self.cfg = cfg
+        self.cfg_dropout = cfg_dropout
         if cfg :
             self.cls_embedding = ClassEmbedding(num_cls=4,hidden_dim=128)
         
     def forward(self,x,t,cls=None):  ## 여기에는 single timestep이 B 차원으로 들어감
         emb = self.time_embedding(t) ## [B,dim] 
         if self.cfg and cls is not None:
+            if self.training :  ## 파이토치에서 자동으로 제공해주는 training 여부 flag 
+                mask = torch.rand(x.shape[0],device=x.device) < self.cfg_dropout
+                cls_emb = cls.clone()
+                cls_emb[mask] = 0
+                cls = cls_emb
             emb += self.cls_embedding(cls) ## [B,dim]  
         
         x = self.down(x,emb)

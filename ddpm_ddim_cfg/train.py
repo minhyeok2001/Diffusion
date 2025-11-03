@@ -15,7 +15,7 @@ from tqdm import tqdm
 from torchvision.utils import make_grid, save_image
 
 
-def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoints/val_samples"):
+def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoints/val_samples",cfg=False,cfg_weight=2.5):
     img, cls = next(iter(valloader))
     img = img.to(device)
     cls = cls.to(device)
@@ -31,8 +31,56 @@ def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoi
     with torch.no_grad():
         for t in range(t_len-1,-1,-1):
             t= torch.full((img.shape[0],), t, device=device, dtype=torch.long) ## 이러면 t는 배치사이즈
-            noise = model(x_t,t)
+            
+            if cfg :
+                cond_noise = model(x_t,t,cls)
+                uncond_noise = model(x_t,t,torch.zeros_like(cls))
+                noise = (1+cfg_weight)*cond_noise - cfg_weight * uncond_noise
+            
+            else :
+                noise = model(x_t,t)
             _,x_t_1,__ = ddpm_scheduler.reverse_process(t=t,x_t=x_t,eps=noise)
+            x_t = x_t_1
+        
+            t_idx_int = int(t[0].item())
+            if t_idx_int in snap_idxs:
+                x_t_1 = (x_t_1 +1 )/2
+                snapshots.append(x_t_1[:min(8, x_t_1.size(0))])
+
+    samples = torch.cat(snapshots, dim=-1)
+    grid = make_grid(samples, nrow=1, normalize=False)
+    os.makedirs(out_dir, exist_ok=True)
+
+    img_path = os.path.join(out_dir, f"iter_{step}_timeline.png")
+    save_image(grid, img_path)
+    wandb.log({f"sample_epoch_{step}": wandb.Image(img_path)})
+                            
+    return x_t
+
+
+def show_cfg_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoints/val_samples",w):
+    img, cls = next(iter(valloader))
+    img = img.to(device)
+    cls = cls.to(device)
+    img = img * 2 - 1
+    t_len = len(ddpm_scheduler.timesteps)
+    x_t = torch.randn_like(img) 
+    
+    snap_idxs = torch.linspace(0, t_len - 1, steps=10).round().long().tolist()
+    snap_idxs = set(int(i) for i in snap_idxs)
+    snapshots = [] 
+    
+    model.eval()
+    with torch.no_grad():
+        for t in range(t_len-1,-1,-1):
+            t= torch.full((img.shape[0],), t, device=device, dtype=torch.long) 
+            cond_noise = model(x_t,t,cls)
+            uncond_noise = model(x_t,t)
+            
+            noise = (1+w)*cond_noise - w * uncond_noise
+            
+            _,x_t_1,__ = ddpm_scheduler.reverse_process(t=t,x_t=x_t,eps=noise)
+            
             x_t = x_t_1
         
             t_idx_int = int(t[0].item())
@@ -61,6 +109,7 @@ def run(args):
     batch_size = args.batch_size
     num_workers = args.num_workers
     cfg = args.cfg
+    diffusion_type = args.diffusion_type
     
     wandb.init(
         project="Diffusion",
@@ -94,10 +143,14 @@ def run(args):
     
     sample_dir = "checkpoints/val_samples"
     os.makedirs(sample_dir, exist_ok=True)
-
+    
     ## 3. train loop
     ## method : 배치사이즈만큼의 time step을 랜덤으로 만든다 -> 해당 타임스텝에서의 forward process를 가져온다 -> 그걸 넣고 노이즈를 예측하도록 한다 
     
+    ## CFG 사용하기 
+    # -> 1. 배치 기준으로 2배로 이미지를 늘리고, 절반은 NULL class, 절반은 1,2,3 class 부여. or 네트워크 내에서는 cfg dropout 비율을 설정하여, 이보다 작은경우는 그냥 NULL 부여 
+    # -> 2. inference 시에 eps  = 1+w cond - w uncond 식 사용 
+
     for i in range(epoch) :
         model.train()
         running_loss = 0.0
@@ -119,7 +172,7 @@ def run(args):
             x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t],x_0=img)
 
             ## 3. noise 예측 Unet
-            noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t])
+            noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t],cls=cls)
 
             loss = loss_ft(noise_pred,noise_gt)
             
@@ -178,7 +231,8 @@ if __name__ == '__main__':
     parser.add_argument("--lr", type=float, default=0.0001)
     parser.add_argument("--cfg", type=bool, default=False)
     parser.add_argument("--num_workers", type=int, default=4)
-    parser.add_argument("--batch_size", type=int, default=1) 
+    parser.add_argument("--batch_size", type=int, default=1)
+    parser.add_argument("--diffusion_type", type=str, default="ddpm",choices=["ddpm", "ddim"],help="Choose which diffusion algorithm to use: 'ddpm' or 'ddim'.")
     
     args = parser.parse_args()
     

@@ -81,6 +81,8 @@ class DDPMScheduler(BaseScheduler):
         sample_prev = mu + torch.sqrt(sigma_square) * noise
 
         return mu, sample_prev, noise
+    
+### 처음에는 cfg를 여기서 하려고 했는데, 그러지말고 그냥 실제 inference time에서 eps 인풋값만 cond uncond로 바꾸어서 하면 됨
         
 def test():
     scheduler = DDPMScheduler(50,None)
