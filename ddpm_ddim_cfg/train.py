@@ -57,47 +57,6 @@ def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoi
                             
     return x_t
 
-
-def show_cfg_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoints/val_samples",w):
-    img, cls = next(iter(valloader))
-    img = img.to(device)
-    cls = cls.to(device)
-    img = img * 2 - 1
-    t_len = len(ddpm_scheduler.timesteps)
-    x_t = torch.randn_like(img) 
-    
-    snap_idxs = torch.linspace(0, t_len - 1, steps=10).round().long().tolist()
-    snap_idxs = set(int(i) for i in snap_idxs)
-    snapshots = [] 
-    
-    model.eval()
-    with torch.no_grad():
-        for t in range(t_len-1,-1,-1):
-            t= torch.full((img.shape[0],), t, device=device, dtype=torch.long) 
-            cond_noise = model(x_t,t,cls)
-            uncond_noise = model(x_t,t)
-            
-            noise = (1+w)*cond_noise - w * uncond_noise
-            
-            _,x_t_1,__ = ddpm_scheduler.reverse_process(t=t,x_t=x_t,eps=noise)
-            
-            x_t = x_t_1
-        
-            t_idx_int = int(t[0].item())
-            if t_idx_int in snap_idxs:
-                x_t_1 = (x_t_1 +1 )/2
-                snapshots.append(x_t_1[:min(8, x_t_1.size(0))])
-
-    samples = torch.cat(snapshots, dim=-1)
-    grid = make_grid(samples, nrow=1, normalize=False)
-    os.makedirs(out_dir, exist_ok=True)
-
-    img_path = os.path.join(out_dir, f"iter_{step}_timeline.png")
-    save_image(grid, img_path)
-    wandb.log({f"sample_epoch_{step}": wandb.Image(img_path)})
-                            
-    return x_t
-
 def run(args):
     
     ## 이렇게 하면 안되지만, colab 이용해야하므로 ..,,
