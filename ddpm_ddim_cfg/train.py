@@ -53,9 +53,8 @@ def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoi
 
     img_path = os.path.join(out_dir, f"iter_{step}_timeline.png")
     save_image(grid, img_path)
-    wandb.log({f"sample_epoch_{step}": wandb.Image(img_path)})
                             
-    return x_t
+    return x_t, img_path
 
 def run(args):
     
@@ -90,6 +89,8 @@ def run(args):
     
     model = DiffusionUnet(cfg=cfg).to(device)
     ddpm_scheduler = DDPMScheduler(inference_step=1000,device=device)
+    
+    wandb.watch(model, log="all")
 
     print("model params : ",sum(item.numel() for item in model.parameters()))
 
@@ -168,12 +169,14 @@ def run(args):
         avg_val_loss = val_loss / val_batches
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
         #scheduler.step()
+        _, img_path = show_prediction(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,device=device)
+        
         wandb.log({
             "train_loss": avg_train_loss,
             "val_loss": avg_val_loss,
-            "epoch": i + 1
+            "epoch": i + 1,
+            "sample":wandb.Image(img_path)
         })
-        show_prediction(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,device=device)
 
 
     torch.save(model.state_dict(), checkpoint_path)
