@@ -134,8 +134,8 @@ def run(args):
 
     print("model params : ",sum(item.numel() for item in model.parameters()))
 
-    optimizer = torch.optim.AdamW(model.parameters(),lr=lr)
-    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer,T_max=epoch)
+    optimizer = torch.optim.Adam(model.parameters(),lr=lr)
+    #scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer=optimizer,T_max=epoch)
     
     loss_ft = DiffusionLoss()
     
@@ -179,7 +179,7 @@ def run(args):
             loss.backward()
             optimizer.step()
             
-            print("loss : ", loss.item())
+            #print("loss : ", loss.item())
             running_loss += loss.item()
  
         avg_train_loss = running_loss / total_len
@@ -208,7 +208,7 @@ def run(args):
             
         avg_val_loss = val_loss / val_batches
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
-        scheduler.step()
+        #scheduler.step()
         wandb.log({
             "train_loss": avg_train_loss,
             "val_loss": avg_val_loss,
@@ -228,10 +228,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     
     parser.add_argument("--epoch", type=int, default=1000)
-    parser.add_argument("--lr", type=float, default=0.0001)
+    parser.add_argument("--lr", type=float, default=0.00005)
     parser.add_argument("--cfg", type=bool, default=False)
     parser.add_argument("--num_workers", type=int, default=4)
-    parser.add_argument("--batch_size", type=int, default=1)
+    parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--diffusion_type", type=str, default="ddpm",choices=["ddpm", "ddim"],help="Choose which diffusion algorithm to use: 'ddpm' or 'ddim'.")
     
     args = parser.parse_args()
