@@ -9,13 +9,14 @@ import torch
 import torch.nn as nn
 import argparse
 import numpy as np
+import wandb
 
 from tqdm import tqdm
 from torchvision.utils import make_grid, save_image
 
 
 def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoints/val_samples"):
-    img, cls =next(iter(valloader))
+    img, cls = next(iter(valloader))
     img = img.to(device)
     cls = cls.to(device)
     img = img * 2 - 1
@@ -42,11 +43,27 @@ def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoi
     samples = torch.cat(snapshots, dim=-1)
     grid = make_grid(samples, nrow=1, normalize=False)
     os.makedirs(out_dir, exist_ok=True)
-    save_image(grid, os.path.join(out_dir, f"iter_{step}_timeline.png"))
+
+    img_path = os.path.join(out_dir, f"iter_{step}_timeline.png")
+    save_image(grid, img_path)
+    wandb.log({f"sample_epoch_{step}": wandb.Image(img_path)})
                             
     return x_t
 
 def run(args):
+    
+    ## 이렇게 하면 안되지만, colab 이용해야하므로 ..,,
+    wandb.login(key="08198b7be027ddffa5241b9acf2f45cd4d42e993")
+    wandb.init(
+        project="Diffusion",
+        config={
+            "epochs": epoch,
+            "lr": lr,
+            "batch_size": batch_size,
+            "num_workers": num_workers
+        }
+    )
+    
     device = "cuda"
     epoch = args.epoch 
     lr = args.lr 
@@ -82,7 +99,6 @@ def run(args):
     ## method : 배치사이즈만큼의 time step을 랜덤으로 만든다 -> 해당 타임스텝에서의 forward process를 가져온다 -> 그걸 넣고 노이즈를 예측하도록 한다 
     
     for i in range(epoch) :
-        
         model.train()
         running_loss = 0.0
         total_len = len(trainloader)
@@ -140,7 +156,11 @@ def run(args):
         avg_val_loss = val_loss / val_batches
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
         scheduler.step()
-        
+        wandb.log({
+            "train_loss": avg_train_loss,
+            "val_loss": avg_val_loss,
+            "epoch": i + 1
+        })
         show_prediction(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,device=device)
 
 
