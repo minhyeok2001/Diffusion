@@ -1,3 +1,4 @@
 /data/dataset
 /test.py
 **/__pycache__/
+/wandb
