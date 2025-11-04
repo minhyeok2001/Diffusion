@@ -118,7 +118,7 @@ def show_tensor_images(x):
     
     # 파일 저장
     os.makedirs("results", exist_ok=True)
-    save_path = os.path.join("results", save_path)
+    save_path = os.path.join("results", "reverse_result.png")
     save_image(grid, save_path)
 
     print(f"✅ Saved reverse diffusion result to: {save_path}")
