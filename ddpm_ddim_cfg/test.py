@@ -18,7 +18,7 @@ import diffusers
 from diffusers import UNet2DModel
 
 batch_size = 1
-device = "cuda"
+device = "mps"
 cfg = False
 hola = 1000
 
@@ -28,10 +28,17 @@ trainloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,collate_
 model = DiffusionUnet(cfg=cfg).to(device)
 ddpm_scheduler = DDPMScheduler(inference_step=hola,device=device)
 
+print("my params :",sum(p.numel() for p in model.parameters()))
+
+hola = torch.randn(6,3,128,128).to(device)
+t = torch.randint(0,1000,(6,)).to(device)
+
+print(model(hola,t).shape)
+
+"""
 official_model = UNet2DModel.from_pretrained("faverogian/Smithsonian128UNet").to(device)
 official_ddpm_scheduler = diffusers.DDPMScheduler(num_train_timesteps=hola,beta_start=1e-4,beta_end=2e-2)
 
-print("my params :",sum(p.numel() for p in model.parameters()))
 print("official params :",sum(p.numel() for p in official_model.parameters()))
 
 img,cls = next(iter(trainloader)) ## 3x3x128x128
@@ -56,11 +63,7 @@ def reverse_image(img):
     idx = [i for i in range(0,hola,100)]
     for i in tqdm(range(hola-1,-1,-1)):
         t = torch.full((img.shape[0],),i,device=device)
-        """
-        print(t.device)
-        print(img.device)
-        print(official_model.device)
-        """
+
         _,reverse_image,_ = test_reverse.reverse_process(t,img,official_model(img,t).sample)
         if i in idx :
             img_stack.append(reverse_image)
@@ -71,6 +74,17 @@ def reverse_image(img):
 class TestReverse(nn.Module):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        timesteps = torch.arange(1000-1,-1,-1,device=device) ## Diffuser에서 확인한 결과, 1000이면 999~0임
+        beta = torch.linspace(1e-4,2e-2,1000,device=device) ## 공식 논문 베타 값 기준
+        alpha = 1-beta
+        cumprod_alpha = torch.cumprod(alpha,-1)
+        
+        #print("cum",cumprod_alpha)
+        
+        ## register buffer 활용하여, 이후 체크포인트에서도 사용 가능하게
+        self.register_buffer("timesteps",timesteps)
+        self.register_buffer("alpha",alpha)
+        self.register_buffer("cumprod_alpha",cumprod_alpha)
     
     def teeth(self,const,t):
         const = const.to(t.device)
@@ -97,6 +111,20 @@ class TestReverse(nn.Module):
 
         return mu, sample_prev, noise
 
+    def check_same(self,):
+        self.official_cumprod_alpha= official_ddpm_scheduler.alphas_cumprod.to(device)
+        self.official_alpha= official_ddpm_scheduler.alphas.to(device)
+        
+        print("cum_alpha 같음? : ",torch.allclose(self.official_cumprod_alpha,self.cumprod_alpha))
+        print("alpha 같음? : ",torch.allclose(self.official_alpha,self.alpha))
+        
+        print("===============alpha 10까지===============")
+        print(self.alpha[:10])
+        print(self.alpha[-10:])
+        print("===============official alpha 10까지===============")
+        print(self.official_alpha[:10])
+        print(self.official_alpha[-10:])
+        
 
 def show_tensor_images(x):
     if isinstance(x, list):
@@ -131,6 +159,13 @@ def show_tensor_images(x):
 #show_tensor_images(forward_image(img))
 #show_tensor_images(forward_image(img,official=True))
 
-## reverse 
+## reverse 식도 문제 x 
 
-show_tensor_images(reverse_image(img))
+
+## scheduler도 문제 x
+
+#show_tensor_images(reverse_image(img))
+#test_reverse = TestReverse()
+#test_reverse.check_same()
+
+"""

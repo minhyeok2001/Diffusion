@@ -87,7 +87,7 @@ class ResnetBlock2D(nn.Module):
                 self.shortcut_module = nn.Identity()
                 
         if time_embedding :
-            self.handling_embedding_dim = nn.Linear(emb_dim,c_in)    
+            self.handling_embedding_dim = nn.Linear(emb_dim,c_in)
 
     def forward(self,x,embedding=None):
         origin = x
@@ -101,7 +101,7 @@ class ResnetBlock2D(nn.Module):
             x += temp
         
         return x 
-        
+
 
 ## UP DOWN 둘다 이걸로 적용
 class Sample2D(nn.Module):  
@@ -115,8 +115,9 @@ class Sample2D(nn.Module):
             raise RuntimeError("Invalid up/down sampling type !!")
                 
         self._type = type
+
         
-    def forward(self,x):
+    def forward(self,x,embedding=None):
         if self._type =="upsampling" :
             x = F.interpolate(x, scale_factor=2, mode="nearest")  
         x = self.module(x)
@@ -124,10 +125,12 @@ class Sample2D(nn.Module):
         
         
 class Attention(nn.Module):
-    def __init__(self,c_hidden):
+    def __init__(self,c_hidden,num_head=2):
         super().__init__()
         
-        ## 여기에는 입력 512 채널 기준으로, 512//8 = 64 이므로 C_in * 64 * 64가 만들어짐
+        self.head_dim = c_hidden // num_head
+        self.num_head = num_head
+        ## 여기에는 입력 128 128 HW 기준으로 /8 = 16 이 만들어짐
         self.groupnorm = nn.GroupNorm(32,c_hidden)
         self.to_k = nn.Linear(c_hidden,c_hidden)
         self.to_q = nn.Linear(c_hidden,c_hidden)
@@ -136,7 +139,6 @@ class Attention(nn.Module):
 
     def forward(self,x):
         B,C,H,W = x.shape
-        
         identity = x
         x = self.groupnorm(x)
         temp = x.permute(0,3,1,2).reshape(B,H*W,C)
@@ -144,11 +146,17 @@ class Attention(nn.Module):
         query = self.to_q(temp)
         value = self.to_v(temp)
         
+        key = key.view(B,H*W,self.num_head,self.head_dim).transpose(1,2)
+        query = query.view(B,H*W,self.num_head,self.head_dim).transpose(1,2)
+        value = value.view(B,H*W,self.num_head,self.head_dim).transpose(1,2)
+        
         scale = math.sqrt(key.shape[-1])
         
-        attention_score = torch.softmax(query@key.transpose(1,2)/scale,dim=-1)    ## 가로로 더해서 softmax 하므로..
+        attention_score = torch.softmax(query@key.transpose(-2,-1)/scale,dim=-1)    ## 가로로 더해서 softmax 하므로..
         x = attention_score @ value
         
+        x = x.transpose(1,2).reshape(B,H*W,C)
+
         x = self.mlp(x)
         
         x = x.reshape(B,H,W,C).permute(0,3,1,2)
