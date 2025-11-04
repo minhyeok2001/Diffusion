@@ -44,6 +44,20 @@ $$
  ### -> Q. Why is reconstruction term intractable while matching term isn't ?
 ![IMG_7CD0FA3F711D-1](https://github.com/user-attachments/assets/13b57411-e09d-406d-b3cb-6d2914df9b4b)
 
+## Issues encountered 
+
+**Poor Performance**
+
+<img width="400" height="300" alt="image" src="https://github.com/user-attachments/assets/80199fdb-04eb-4b32-8941-aa3c61706968" />
+
+**What I've Done**
+1.	Found that sigma was negative — switched to using log variance in the encoder (as the official VAE code does).
+   
+2.	Since official VAEs are trained on lower-resolution images, resized input from 512×512 → 128×128.
+   
+3.	Removed the final sigmoid layer in the decoder and normalized data to [-1, 1].
+
+
 ## Experiments & Ablation Study
 
 - 6 hours in Colab using A100
@@ -83,21 +97,7 @@ All training process, results are available in **_VAE.ipynb_** and **_VAE_No_bet
     </td>
   </tr>
 </table>
-
-## Issues encountered 
-
-**Poor Performance**
-
-<img width="400" height="300" alt="image" src="https://github.com/user-attachments/assets/80199fdb-04eb-4b32-8941-aa3c61706968" />
-
-**What I've Done**
-1.	Found that sigma was negative — switched to using log variance in the encoder (as the official VAE code does).
-   
-2.	Since official VAEs are trained on lower-resolution images, resized input from 512×512 → 128×128.
-   
-3.	Removed the final sigmoid layer in the decoder and normalized data to [-1, 1].
-
-
+            
 ## Reference
 
 original paper  -  https://arxiv.org/abs/1312.6114
@@ -107,6 +107,7 @@ Huggingface Diffuser.AutoencoderKL  -  https://huggingface.co/docs/diffusers/api
 Q's reference - https://www.datacamp.com/tutorial/variational-autoencoders
 
 β vae paper - https://openreview.net/forum?id=Sy2fzU9gl
+
 
 
 
