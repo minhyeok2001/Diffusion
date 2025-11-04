@@ -94,6 +94,8 @@ The detailed mathematical derivations are provided above.
 
 ## Issues encountered 
 
+### DDPM
+
 **1. Loss spike**
 
 <img width="700" height="500" alt="스크린샷 2025-11-04 오후 3 17 09" src="https://github.com/user-attachments/assets/b5d6557a-4168-42f3-9e61-710a6390873c" />
@@ -142,6 +144,7 @@ So I double checked my Unet model
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
