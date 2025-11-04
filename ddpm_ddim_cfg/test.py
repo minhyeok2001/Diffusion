@@ -54,7 +54,7 @@ def reverse_image(img):
     test_reverse = TestReverse()
     img_stack = []
     idx = [i for i in range(0,hola,100)]
-    for i in tqdm(range(hola,0,-1)):
+    for i in tqdm(range(hola-1,-1,-1)):
         t = torch.full((img.shape[0],),i,device=device)
         """
         print(t.device)
