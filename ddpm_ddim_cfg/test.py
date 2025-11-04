@@ -18,7 +18,7 @@ import diffusers
 from diffusers import UNet2DModel
 
 batch_size = 1
-device = "mps"
+device = "cuda"
 cfg = False
 hola = 1000
 
