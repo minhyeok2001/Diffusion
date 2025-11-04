@@ -65,7 +65,7 @@ def reverse_image(img):
         if i in idx :
             img_stack.append(reverse_image)
         
-    return reverse_image
+    return img_stack
 
 
 class TestReverse(nn.Module):
