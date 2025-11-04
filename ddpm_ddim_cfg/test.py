@@ -61,7 +61,7 @@ def reverse_image(img):
         print(img.device)
         print(official_model.device)
         """
-        reverse_image = test_reverse.reverse_process(t,img,official_model(img,t).sample)
+        _,reverse_image,_ = test_reverse.reverse_process(t,img,official_model(img,t).sample)
         if i in idx :
             img_stack.append(reverse_image)
         
