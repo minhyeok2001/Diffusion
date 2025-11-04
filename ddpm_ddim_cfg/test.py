@@ -114,10 +114,15 @@ def show_tensor_images(x):
     chunks = [x[i:i+3] for i in range(0, x.size(0), 3)]
     col_images = [make_grid(chunk, nrow=1) for chunk in chunks]
     grid = torch.cat(col_images, dim=2)  
-    plt.figure(figsize=(30, 12))
-    plt.imshow(grid.permute(1, 2, 0))
-    plt.axis('off')
-    plt.show()
+    
+    
+    # 파일 저장
+    os.makedirs("results", exist_ok=True)
+    save_path = os.path.join("results", save_path)
+    save_image(grid, save_path)
+
+    print(f"✅ Saved reverse diffusion result to: {save_path}")
+    return save_path
 
 
 ## 확인결과 forward는 문제 x
