@@ -66,6 +66,7 @@ def run(args):
     batch_size = args.batch_size
     num_workers = args.num_workers
     cfg = args.cfg
+    cfg_dropout= args.cfg_dropout
     diffusion_type = args.diffusion_type
     
     wandb.init(
@@ -77,16 +78,17 @@ def run(args):
             "num_workers": num_workers
         }
     )
+    
     dataset = data.dataloader.CustomDataset()
     trainloader = torch.utils.data.DataLoader(dataset,batch_size=batch_size,collate_fn=data.dataloader.collate_ft,num_workers= num_workers,shuffle=True)
     
     valset = data.dataloader.CustomDataset(test=True)
-    valloader = torch.utils.data.DataLoader(valset,batch_size=batch_size,num_workers= num_workers,shuffle=False)
+    valloader = torch.utils.data.DataLoader(valset,batch_size=batch_size,num_workers=num_workers,shuffle=False)
     
-    visual_valloader = torch.utils.data.DataLoader(valset,batch_size=1,num_workers= num_workers,shuffle=False)
+    visual_valloader = torch.utils.data.DataLoader(valset,batch_size=1,num_workers=num_workers,shuffle=False)
     ## 2. Model definition & setting stuffs..
     
-    model = DiffusionUnet(cfg=cfg).to(device)
+    model = DiffusionUnet(cfg=cfg,cfg_dropout=cfg_dropout).to(device)
     ddpm_scheduler = DDPMScheduler(inference_step=1000,device=device)
     
     wandb.watch(model, log="all")
@@ -128,10 +130,10 @@ def run(args):
             t =torch.randint(0,len(ddpm_scheduler.timesteps),(img.shape[0],), device=device) ## 이게 t idx가 아니라 그냥 t인가?
 
             ## 2. 해당 t에 맞게 forward process를 한다 with noise_gt
-            x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t],x_0=img)
+            x_t, noise_gt = ddpm_scheduler.forward_process(t=t,x_0=img)
 
             ## 3. noise 예측 Unet
-            noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t],cls=cls)
+            noise_pred = model(x=x_t,t=t,cls=cls)
 
             loss = loss_ft(noise_pred,noise_gt)
             
@@ -157,9 +159,9 @@ def run(args):
                 
                 t =torch.randint(0,len(ddpm_scheduler.timesteps),(img.shape[0],), device=device)
                 
-                x_t, noise_gt = ddpm_scheduler.forward_process(t=ddpm_scheduler.timesteps[t],x_0=img)
+                x_t, noise_gt = ddpm_scheduler.forward_process(t=t,x_0=img)
                 
-                noise_pred = model(x=x_t,t=ddpm_scheduler.timesteps[t])
+                noise_pred = model(x=x_t,t=t,cls=cls)
 
                 loss = loss_ft(noise_pred,noise_gt)
 
@@ -168,7 +170,7 @@ def run(args):
         avg_val_loss = val_loss / val_batches
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
         #scheduler.step()
-        _, img_path = show_prediction(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,device=device)
+        _, img_path = show_prediction(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,cfg=cfg,device=device)
         
         wandb.log({
             "train_loss": avg_train_loss,
@@ -191,6 +193,7 @@ if __name__ == '__main__':
     parser.add_argument("--epoch", type=int, default=1000)
     parser.add_argument("--lr", type=float, default=0.00005)
     parser.add_argument("--cfg", type=bool, default=False)
+    parser.add_argument("--cfg_dropout", type=float, default=0.2)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--diffusion_type", type=str, default="ddpm",choices=["ddpm", "ddim"],help="Choose which diffusion algorithm to use: 'ddpm' or 'ddim'.")
