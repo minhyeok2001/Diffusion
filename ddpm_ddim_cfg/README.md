@@ -98,7 +98,10 @@ The detailed mathematical derivations are provided above.
 
 **1. Loss spike**
 
-<img width="700" height="500" alt="스크린샷 2025-11-04 오후 3 17 09" src="https://github.com/user-attachments/assets/b5d6557a-4168-42f3-9e61-710a6390873c" />
+<p align="center">
+	<img width="700" height="500" alt="스크린샷 2025-11-04 오후 3 17 09" src="https://github.com/user-attachments/assets/b5d6557a-4168-42f3-9e61-710a6390873c" />
+	<i>Training loss on WnB</i>
+</p>
 
 A noticeable loss spike was observed when using a learning rate of 5e-4.
 
@@ -132,18 +135,65 @@ Based on this comparison, I found that when replacing my U-Net with the open-sou
 
 So far, I’ve trained my model with 15,000 128×128 images for about 12 hours on an A100, which seems like enough training time based on my experience in CS492.
 
-So I double checked my Unet model
+I modified my model architecture focusing on three aspects -
+
+a symmetric encoder–decoder design, skip connections between the encoder and decoder, and replacing the original single-head attention with multi-head attention. 
+
+The original version was largely based on a VAE-UNet architecture, which is asymmetric — the decoder is thicker than the encoder — and lacks skip connections between them.
+
+The results below are from 200 epochs of training, taking about 14 hours on an A100. 
+
+For more details, check [Run named "DDPM" on W&B](https://wandb.ai/mhroh01-ajou-university/Diffusion/table?nw=nwusermhroh01).
+
+<p align="center">
+  <img width="700" height="500" alt="스크린샷 2025-11-05 오후 3 34 08" src="https://github.com/user-attachments/assets/4786ff41-a470-49e7-a10e-0250a0b4acc5" /><br>
+  <i>Training & validation loss on WnB</i>
+</p>
+
+<p align="center">
+  <img width="1280" height="128" alt="image" src="https://github.com/user-attachments/assets/8fc379de-a4f7-48b7-ab77-74827ad19d05" /><br>
+	<img width="1280" height="128" alt="image" src="https://github.com/user-attachments/assets/46f56ae4-75d6-4f61-919d-5c0dadacb455" /><br>
+	<img width="1280" height="128" alt="image" src="https://github.com/user-attachments/assets/a5b0111b-603a-4cf5-9afa-7af9b6747217" /><br>
+  <i>Inference from random noise</i>
+</p>
 
 
 
 
 
+
+
+
+<table>
+  <tr>
+    <th>Model</th>
+    <th>FID Score</th>
+  </tr>
+  <tr>
+    <td>DDPM w/o cfg</td>
+    <td>172.30</td>
+  </tr>
+  <tr>
+    <td>DDIM w/o cfg</td>
+    <td>asdadasd</td>
+  </tr>
+  <tr>
+    <td>DDPM w/ cfg</td>
+    <td>asddas</td>
+  </tr>
+  <tr>
+    <td>DDIM w/ cfg</td>
+    <td>asddas</td>
+  </tr>
+</table>
+            
 
 
 ## Reference
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
