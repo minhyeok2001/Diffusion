@@ -1,5 +1,3 @@
-
-
 import data.get_data 
 import data.dataloader 
 from .diffusion_model import *
@@ -48,7 +46,7 @@ def show_prediction_fid(valloader, scheduler, model, device, out_dir="checkpoint
                 save_image(real_imgs[i], os.path.join(real_dir, f"{save_idx:06d}.png"))
 
             x_t = torch.randn_like(img_scaled) 
-            for t in range(t_len - 1, -1, -1):
+            for t in scheduler.timesteps:
                 t_tensor = torch.full((img.shape[0],), t, device=device, dtype=torch.long)
                 if cfg:
                     cond_noise = model(x_t, t_tensor, cls)
@@ -84,7 +82,7 @@ def show_prediction(valloader,scheduler,model,device,out_dir="checkpoints/val_sa
     
     model.eval()
     with torch.no_grad():
-        for t in range(t_len-1,-1,-1):
+        for t in scheduler.timesteps:
             t= torch.full((img.shape[0],), t, device=device, dtype=torch.long) ## 이러면 t는 배치사이즈
             
             if cfg :
