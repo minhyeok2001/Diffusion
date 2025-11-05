@@ -22,7 +22,7 @@ ddpm_scheduler = DDPMScheduler(inference_step=1000,device=device)
 
 model.load_state_dict(torch.load("checkpoints/Diffusion.pth", map_location=device))
 
-def show_prediction_fid(valloader, ddpm_scheduler, model, device, out_dir="checkpoints/val_samples", cfg=False, cfg_weight=2.5):
+def show_prediction_fid(valloader, ddpm_scheduler, model, device, out_dir="checkpoints/val_samples", cfg=True, cfg_weight=2.5):
     model.eval()
     os.makedirs(out_dir, exist_ok=True)
     real_dir = os.path.join(out_dir, "real")
