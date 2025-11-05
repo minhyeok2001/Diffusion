@@ -14,7 +14,6 @@ import wandb
 from tqdm import tqdm
 from torchvision.utils import make_grid, save_image
 
-
 def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoints/val_samples",cfg=False,cfg_weight=2.5):
     img, cls = next(iter(valloader))
     img = img.to(device)
