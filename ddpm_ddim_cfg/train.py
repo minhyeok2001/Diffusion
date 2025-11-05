@@ -67,6 +67,7 @@ def run(args):
     num_workers = args.num_workers
     cfg = args.cfg
     cfg_dropout= args.cfg_dropout
+    cfg_weight = args.cfg_weight
     diffusion_type = args.diffusion_type
     
     wandb.init(
@@ -170,7 +171,7 @@ def run(args):
         avg_val_loss = val_loss / val_batches
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
         #scheduler.step()
-        _, img_path = show_prediction(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,cfg=cfg,device=device)
+        _, img_path = show_prediction(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,cfg=cfg,device=device,cfg_weight=cfg_weight)
         
         wandb.log({
             "train_loss": avg_train_loss,
@@ -194,6 +195,7 @@ if __name__ == '__main__':
     parser.add_argument("--lr", type=float, default=0.00005)
     parser.add_argument("--cfg", type=bool, default=False)
     parser.add_argument("--cfg_dropout", type=float, default=0.2)
+    parser.add_argument("--cfg_weight", type=float, default=2.5)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--diffusion_type", type=str, default="ddpm",choices=["ddpm", "ddim"],help="Choose which diffusion algorithm to use: 'ddpm' or 'ddim'.")
