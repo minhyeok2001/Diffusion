@@ -27,6 +27,7 @@ class BaseScheduler(nn.Module):
     def set_time(self,inference_step):
         ## FOR DDIM !!!!!
         self.inference_step = inference_step
+        self.ratio = len(self.timesteps) // inference_step 
         
     """
         ratio = len(self.timesteps) // inference_step 
@@ -115,19 +116,29 @@ class DDIMScheduler(BaseScheduler):
         return x_t, eps
     
     def reverse_process(self,t,x_t,eps,eta=1,noise=None):
-        alpha_bar = self.teeth(self.cumprod_alpha,t)
-        alpha = self.teeth(self.alpha,t)
         #alpha_bar_prev = self.teeth(torch.cat([torch.tensor([1.0],device=x_t.device),self.cumprod_alpha[:-1]],dim=0),t)
         ## 이걸 이렇게 하면 되겠냐? timestep만 지금 inference step에 맞게 sampling 된건데?
     
         ### T는 배치로들어오고있음 근데 아래처럼 계산해도 알아서 브로드캐스팅 될텐데?
-        t_prev = t - (self.num_timestep // self.inference_step)
         
+        ## t는 99 98 .. 이런식으로 들어오는중
+        ## 근데 실제로 subsample된거는, 990 980 이런식이에요
+        ## t에다가 self.ratio를 곱해주는 과정을 한번 해주면 좋을듯 
+        
+        t_prev = (t-1)*self.ratio
+        t = t * self.ratio
+        ## 이렇게하면, t는 990 980 ... 이런식이고 t_prev는 980 970 ... -10 이런식임
+        
+        alpha_bar = self.teeth(self.cumprod_alpha,t)
         alpha_bar_prev = torch.where(
             t_prev >= 0,
             self.cumprod_alpha[t_prev],
             1
-        ).reshape(-1,1,1,1)
+        ).reshape(-1,1,1,1)  
+        
+        #alpha = self.teeth(self.alpha,t)
+        
+        alpha = alpha_bar/alpha_bar_prev
             
         sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha) * (eta**2)
     
