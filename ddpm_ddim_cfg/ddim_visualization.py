@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     model.eval()
     
-    """
+
     show_prediction_fid(
         valloader,
         ddim_scheduler,
@@ -82,4 +82,3 @@ if __name__ == "__main__":
         device,
         eta=args.eta,
     )
-    """
