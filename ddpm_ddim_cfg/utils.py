@@ -130,11 +130,17 @@ class DDIMScheduler(BaseScheduler):
         ## 이렇게하면, t는 990 980 ... 이런식이고 t_prev는 980 970 ... -10 이런식임
         
         alpha_bar = self.teeth(self.cumprod_alpha,t)
+        """
         alpha_bar_prev = torch.where(
             t_prev >= 0,
             self.cumprod_alpha[t_prev],
             1
         ).reshape(-1,1,1,1)  
+        """
+        t_prev_safe = t_prev.clamp(min=0)
+        a_prev_vals = self.cumprod_alpha[t_prev_safe]
+        one_b = torch.ones_like(a_prev_vals, device=x_t.device, dtype=x_t.dtype)
+        alpha_bar_prev = torch.where(t_prev >= 0, a_prev_vals, one_b).view(-1,1,1,1)
         
         #alpha = self.teeth(self.alpha,t)
         
