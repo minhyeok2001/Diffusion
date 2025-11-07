@@ -59,6 +59,7 @@ def show_prediction_fid(valloader, scheduler, model, device, eta,  out_dir="chec
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--eta", type=float, default=1.0)
+    parser.add_argument("--inference_step",type=float, default=100)
     args = parser.parse_args()
 
     device = "cuda"
@@ -68,7 +69,7 @@ if __name__ == "__main__":
 
     model = DiffusionUnet(cfg=False).to(device)
     ddim_scheduler = DDIMScheduler(inference_step=1000,device=device)
-    ddim_scheduler.set_time(inference_step=100)
+    ddim_scheduler.set_time(inference_step=args.inference_step)
     
     #print(ddim_scheduler.cumprod_alpha[-5:])
     #print(ddim_scheduler.alpha[-5:])
