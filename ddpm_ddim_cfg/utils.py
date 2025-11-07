@@ -124,7 +124,7 @@ class DDIMScheduler(BaseScheduler):
         
         alpha_bar_prev = torch.where(
             t_prev >= 0,
-            self.teeth(self.cumprod_alpha_prev, t_prev),
+            self.teeth(self.cumprod_alpha, t_prev),
             torch.ones_like(alpha_bar)
         )
             
