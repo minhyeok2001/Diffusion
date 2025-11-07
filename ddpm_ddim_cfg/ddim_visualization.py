@@ -35,7 +35,7 @@ def show_prediction_fid(valloader, scheduler, model, device, eta,  out_dir="chec
                 save_image(real_imgs[i], os.path.join(real_dir, f"{save_idx:06d}.png"))
 
             x_t = torch.randn_like(img_scaled) 
-            for t in range(len(scheduler.timesteps)-1,-1,-1):
+            for t in range(len(scheduler.inference_step)-1,-1,-1):
                 t_tensor = torch.full((img.shape[0],), t, device=device, dtype=torch.long)
                 if cfg:
                     cond_noise = model(x_t, t_tensor, cls)
