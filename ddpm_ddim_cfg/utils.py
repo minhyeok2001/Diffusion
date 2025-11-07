@@ -23,10 +23,13 @@ class BaseScheduler(nn.Module):
 
         
     def set_time(self,inference_step):
+        ## FOR DDIM !!!!!
         ratio = len(self.timesteps) // inference_step 
         timestep = torch.arange(inference_step-1,-1,-1,device=self.device) * ratio
         self.timesteps = timestep
-        
+        self.cumprod_alpha = self.cumprod_alpha[timestep[::-1]]
+        self.cumprod_alpha_prev = torch.cat([torch.tensor([1]),self.cumprod_alpha[:-1]],dim=-1)
+        self.alpha = self.cumprod_alpha/self.cumprod_alpha_prev
         
     def teeth(self,const,t):
         ## timestep이랑 alpha, cumprod_alpha같은거 넣으면 거기에 맞는거 뽑아주는 함수
@@ -108,7 +111,10 @@ class DDIMScheduler(BaseScheduler):
     def reverse_process(self,t,x_t,eps,eta=1,noise=None):
         alpha_bar = self.teeth(self.cumprod_alpha,t)
         alpha = self.teeth(self.alpha,t)
-        alpha_bar_prev = self.teeth(torch.cat([torch.tensor([1.0],device=x_t.device),self.cumprod_alpha[:-1]],dim=0),t)
+        #alpha_bar_prev = self.teeth(torch.cat([torch.tensor([1.0],device=x_t.device),self.cumprod_alpha[:-1]],dim=0),t)
+        ## 이걸 이렇게 하면 되겠냐? timestep만 지금 inference step에 맞게 sampling 된건데?
+        
+        alpha_bar_prev = self.teeth(self.cumprod_alpha_prev,t)
         sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha) * eta
     
         x_0 = (1/torch.sqrt(alpha_bar)) * (x_t - torch.sqrt(1-alpha_bar) * eps)
