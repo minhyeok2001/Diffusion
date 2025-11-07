@@ -11,6 +11,8 @@ class BaseScheduler(nn.Module):
         beta = torch.linspace(1e-4,2e-2,num_timestep,device=device) ## 공식 논문 베타 값 기준
         alpha = 1-beta
         cumprod_alpha = torch.cumprod(alpha,-1)
+        self.num_timestep = num_timestep
+        self.inference_step = num_timestep
         
         #print("cum",cumprod_alpha)
         
@@ -21,16 +23,20 @@ class BaseScheduler(nn.Module):
         self.register_buffer("alpha",alpha)
         self.register_buffer("cumprod_alpha",cumprod_alpha)
 
-        
+
     def set_time(self,inference_step):
         ## FOR DDIM !!!!!
+        self.inference_step = inference_step
+        
+    """
         ratio = len(self.timesteps) // inference_step 
         timestep = torch.arange(inference_step-1,-1,-1,device=self.device) * ratio
         self.timesteps = timestep
         self.cumprod_alpha = self.cumprod_alpha[timestep.flip(0)] ## tensor는 [::-1] 안된다고함 
         self.cumprod_alpha_prev = torch.cat([torch.tensor([1],device=self.timesteps.device),self.cumprod_alpha[:-1]],dim=-1)
         self.alpha = self.cumprod_alpha/self.cumprod_alpha_prev
-        
+    """
+    
     def teeth(self,const,t):
         ## timestep이랑 alpha, cumprod_alpha같은거 넣으면 거기에 맞는거 뽑아주는 함수
         ## const : [ linspace 한거만큼의 dim ],  t : [ B ]
@@ -114,15 +120,22 @@ class DDIMScheduler(BaseScheduler):
         #alpha_bar_prev = self.teeth(torch.cat([torch.tensor([1.0],device=x_t.device),self.cumprod_alpha[:-1]],dim=0),t)
         ## 이걸 이렇게 하면 되겠냐? timestep만 지금 inference step에 맞게 sampling 된건데?
         
-        alpha_bar_prev = self.teeth(self.cumprod_alpha_prev,t)
-        sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha) * eta
+        t_prev = t - (self.num_timestep // self.inference_step)
+        
+        alpha_bar_prev = torch.where(
+            t_prev >= 0,
+            self.teeth(self.cumprod_alpha_prev, t_prev),
+            torch.ones_like(alpha_bar)
+        )
+            
+        sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha) * (eta**2)
     
         x_0 = (1/torch.sqrt(alpha_bar)) * (x_t - torch.sqrt(1-alpha_bar) * eps)
         mu = torch.sqrt(alpha_bar_prev)*x_0 + torch.sqrt(1-alpha_bar_prev-sigma_square) * (x_t - torch.sqrt(alpha_bar)*x_0)/torch.sqrt(1-alpha_bar)
 
         if noise is None:
             noise = torch.randn_like(x_t)
-            
+
         sample_prev = mu + torch.sqrt(sigma_square) * noise
 
         return mu, sample_prev, noise

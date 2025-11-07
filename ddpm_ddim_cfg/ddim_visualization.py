@@ -61,7 +61,7 @@ if __name__ == "__main__":
     parser.add_argument("--eta", type=float, default=1.0)
     args = parser.parse_args()
 
-    device = "cuda"
+    device = "mps"
     
     valset = data.dataloader.CustomDataset(test=True)
     valloader = torch.utils.data.DataLoader(valset,batch_size=16,num_workers=4,shuffle=False)
@@ -69,7 +69,10 @@ if __name__ == "__main__":
     model = DiffusionUnet(cfg=False).to(device)
     ddim_scheduler = DDIMScheduler(inference_step=1000,device=device)
     ddim_scheduler.set_time(inference_step=100)
-
+    
+    #print(ddim_scheduler.cumprod_alpha[-5:])
+    #print(ddim_scheduler.alpha[-5:])
+    
     model.load_state_dict(torch.load("checkpoints/DDPM.pth", map_location=device))
 
     model.eval()
@@ -82,3 +85,4 @@ if __name__ == "__main__":
         device,
         eta=args.eta,
     )
+ 
