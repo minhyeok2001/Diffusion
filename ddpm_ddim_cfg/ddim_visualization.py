@@ -14,7 +14,7 @@ from tqdm import tqdm
 from torchvision.utils import make_grid, save_image
 
 
-def show_prediction_fid(valloader, scheduler, model, device, eta,  out_dir="checkpoints/val_samples", cfg=True, cfg_weight=2.5):
+def show_prediction_fid(valloader, scheduler, model, device, eta,  out_dir="checkpoints/val_samples", cfg=False, cfg_weight=2.5):
     
     os.makedirs(out_dir, exist_ok=True)
     real_dir = os.path.join(out_dir, "real")

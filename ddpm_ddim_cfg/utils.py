@@ -143,7 +143,8 @@ class DDIMScheduler(BaseScheduler):
         sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha) * (eta**2)
     
         x_0 = (1/torch.sqrt(alpha_bar)) * (x_t - torch.sqrt(1-alpha_bar) * eps)
-        mu = torch.sqrt(alpha_bar_prev)*x_0 + torch.sqrt(1-alpha_bar_prev-sigma_square) * (x_t - torch.sqrt(alpha_bar)*x_0)/torch.sqrt(1-alpha_bar)
+        #mu = torch.sqrt(alpha_bar_prev)*x_0 + torch.sqrt(1-alpha_bar_prev-sigma_square) * (x_t - torch.sqrt(alpha_bar)*x_0)/torch.sqrt(1-alpha_bar)
+        mu = torch.sqrt(alpha_bar_prev)*x_0 + torch.sqrt(1-alpha_bar_prev-sigma_square) * eps
 
         if noise is None:
             noise = torch.randn_like(x_t)
