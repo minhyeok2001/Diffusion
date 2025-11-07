@@ -27,7 +27,7 @@ class BaseScheduler(nn.Module):
         ratio = len(self.timesteps) // inference_step 
         timestep = torch.arange(inference_step-1,-1,-1,device=self.device) * ratio
         self.timesteps = timestep
-        self.cumprod_alpha = self.cumprod_alpha[timestep[::-1]]
+        self.cumprod_alpha = self.cumprod_alpha[timestep.flip(0)] ## tensor는 [::-1] 안된다고함 
         self.cumprod_alpha_prev = torch.cat([torch.tensor([1]),self.cumprod_alpha[:-1]],dim=-1)
         self.alpha = self.cumprod_alpha/self.cumprod_alpha_prev
         
