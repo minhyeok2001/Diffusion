@@ -119,14 +119,15 @@ class DDIMScheduler(BaseScheduler):
         alpha = self.teeth(self.alpha,t)
         #alpha_bar_prev = self.teeth(torch.cat([torch.tensor([1.0],device=x_t.device),self.cumprod_alpha[:-1]],dim=0),t)
         ## 이걸 이렇게 하면 되겠냐? timestep만 지금 inference step에 맞게 sampling 된건데?
-        
+    
+        ### T는 배치로들어오고있음 근데 아래처럼 계산해도 알아서 브로드캐스팅 될텐데?
         t_prev = t - (self.num_timestep // self.inference_step)
         
         alpha_bar_prev = torch.where(
             t_prev >= 0,
-            self.teeth(self.cumprod_alpha, t_prev),
-            torch.ones_like(alpha_bar)
-        )
+            self.cumprod_alpha[t_prev],
+            1
+        ).reshape(-1,1,1,1)
             
         sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha) * (eta**2)
     
