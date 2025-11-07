@@ -15,7 +15,7 @@ from torchvision.utils import make_grid, save_image
 
 
 
-def show_prediction(valloader, scheduler, model, device, eta,  out_dir="checkpoints/val_samples", cfg=False, cfg_weight=2.5):
+def show_prediction(valloader, scheduler, model, device, eta,  out_dir="checkpoints/val_samples/examples", cfg=False, cfg_weight=2.5,inference_step=100):
     img, cls = next(iter(valloader))
     img = img.to(device)
     cls = cls.to(device)
@@ -51,17 +51,17 @@ def show_prediction(valloader, scheduler, model, device, eta,  out_dir="checkpoi
     grid = make_grid(samples, nrow=1, normalize=False)
     os.makedirs(out_dir, exist_ok=True)
 
-    img_path = os.path.join(out_dir, f"timeline.png")
+    img_path = os.path.join(out_dir, f"step_{inference_step}_eta_{eta}.png")
     save_image(grid, img_path)
                             
     return x_t, img_path
 
 
-def show_prediction_fid(valloader, scheduler, model, device, eta,  out_dir="checkpoints/val_samples", cfg=False, cfg_weight=2.5):
+def show_prediction_fid(valloader, scheduler, model, device, eta,  out_dir="checkpoints/val_samples", cfg=False, cfg_weight=2.5,inference_step=100):
     
     os.makedirs(out_dir, exist_ok=True)
-    real_dir = os.path.join(out_dir, "real")
-    gen_dir  = os.path.join(out_dir, "gen")
+    real_dir = os.path.join(out_dir, f"step_{inference_step}_eta_{eta}_real")
+    gen_dir  = os.path.join(out_dir, f"step_{inference_step}_eta_{eta}_gen")
     os.makedirs(real_dir, exist_ok=True)
     os.makedirs(gen_dir,  exist_ok=True)
     save_idx = 0
@@ -121,8 +121,6 @@ if __name__ == "__main__":
 
     model.eval()
     
-
-    #show_prediction_fid(valloader,ddim_scheduler,model,device,eta=args.eta)
-    
-    show_prediction(valloader,ddim_scheduler,model,device,eta=args.eta)
+    show_prediction(valloader,ddim_scheduler,model,device,eta=args.eta,inference_step=args.inference_step)
+    show_prediction_fid(valloader,ddim_scheduler,model,device,eta=args.eta,inference_step=args.inference_step)
  
