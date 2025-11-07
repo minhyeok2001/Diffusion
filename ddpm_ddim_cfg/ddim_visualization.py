@@ -61,7 +61,7 @@ if __name__ == "__main__":
     parser.add_argument("--eta", type=float, default=1.0)
     args = parser.parse_args()
 
-    device = "mps"
+    device = "cuda"
     
     valset = data.dataloader.CustomDataset(test=True)
     valloader = torch.utils.data.DataLoader(valset,batch_size=16,num_workers=4,shuffle=False)
