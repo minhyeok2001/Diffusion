@@ -59,7 +59,7 @@ def show_prediction_fid(valloader, scheduler, model, device, eta,  out_dir="chec
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--eta", type=float, default=1.0)
-    parser.add_argument("--inference_step",type=float, default=100)
+    parser.add_argument("--inference_step",type=int, default=100)
     args = parser.parse_args()
 
     device = "cuda"
