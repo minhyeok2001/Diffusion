@@ -146,7 +146,7 @@ if __name__ == "__main__":
     parser.add_argument("--eta", type=float, default=1.0)
     parser.add_argument("--inference_step",type=int, default=100)
     parser.add_argument("--model",type=str, default="ddpm")
-    parser.add_argument("--cfg", type=bool, default=True)
+    parser.add_argument("--cfg", action="store_true")
     parser.add_argument("--cfg_weight", type=float, default= 2.5)
     args = parser.parse_args()
 
