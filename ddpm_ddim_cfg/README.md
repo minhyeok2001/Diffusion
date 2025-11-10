@@ -160,9 +160,9 @@ For more details, check [Run named "DDPM" on W&B](https://wandb.ai/mhroh01-ajou-
 
 
 
+## Experimental result 
 
-
-
+**Table 1. FID Scores of DDPM Models (with / without Classifier-Free Guidance)**
 
 <table>
   <tr>
@@ -174,18 +174,64 @@ For more details, check [Run named "DDPM" on W&B](https://wandb.ai/mhroh01-ajou-
     <td>172.30</td>
   </tr>
   <tr>
-    <td>DDIM w/o cfg</td>
-    <td>asdadasd</td>
-  </tr>
-  <tr>
     <td>DDPM w/ cfg</td>
     <td>asddas</td>
   </tr>
+</table>
+
+
+
+**Table 2. FID Scores of DDIM Models by Inference Step and η Value**
+
+
+<table>
   <tr>
-    <td>DDIM w/ cfg</td>
-    <td>asddas</td>
+    <th>Inference Step</th>
+    <th>DDIM (η=1.0)</th>
+    <th>DDIM (η=0.5)</th>
+    <th>DDIM (η=0.0)</th>
+  </tr>
+  <tr>
+    <td>100</td>
+    <td>369.03</td>
+    <td>476.34</td>
+    <td>589.71</td>
+  </tr>
+  <tr>
+    <td>250</td>
+    <td>403.41</td>
+    <td>609.96</td>
+    <td>778.55</td>
+  </tr>
+  <tr>
+    <td>500</td>
+    <td>394.72</td>
+    <td>473.83</td>
+    <td>593.69</td>
+  </tr>
+  <tr>
+    <td>750</td>
+    <td>275.70</td>
+    <td>200.49</td>
+    <td>302.95</td>
+  </tr>
+  <tr>
+    <td>1000</td>
+    <td>155.86</td>
+    <td>159.62</td>
+    <td>251.57</td>
   </tr>
 </table>
+
+
+<p align="center">
+  <img width="968" height="1190" alt="image" src="https://github.com/user-attachments/assets/7540a5bb-0648-4cc1-904e-8204cbcf3f2e" /><br>
+  <i>Results of DDIM with each step, eta</i>
+</p>
+
+
+
+
             
 
 
@@ -193,6 +239,8 @@ For more details, check [Run named "DDPM" on W&B](https://wandb.ai/mhroh01-ajou-
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
+
 
 
 
