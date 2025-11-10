@@ -27,7 +27,8 @@ class TimeEmbedding(nn.Module):
         device = timestep.device
         half = dim //2 # 반으로 나눠서 cos / sin 사용 
         #  exp ( -log(10000) * 0/half, -log(10000) * 1/half, -log(10000) * 2/half , ... )
-        freqs = torch.exp(-math.log(max_period)* torch.arange(start=0, end=half, dtype=torch.float32) / half).to(device)     ## 그러니까 이게 timestep에 의존적인게 아니라, 세로로.. 즉 dim 축을 구성하기 위한 frequency
+        freqs = torch.exp(-torch.log(torch.tensor(float(max_period), device=device, dtype=torch.float32))* (torch.arange(0, half, device=device, dtype=torch.float32) / float(half))
+)     ## 그러니까 이게 timestep에 의존적인게 아니라, 세로로.. 즉 dim 축을 구성하기 위한 frequency
         args = timestep[:, None].float() * freqs[None]
         embedding = torch.cat([torch.cos(args), torch.sin(args)], dim=-1)
         # [N, dim]
