@@ -155,10 +155,11 @@ if __name__ == "__main__":
     valset = data.dataloader.CustomDataset(test=True)
     valloader = torch.utils.data.DataLoader(valset,batch_size=16,num_workers=4,shuffle=False)
 
-    model = DiffusionUnet(cfg=False).to(device)
+
     
     ## for ddpm cfg
     if args.model == "ddpm" :
+        model = DiffusionUnet(cfg=True).to(device)
         scheduler = DDPMScheduler(inference_step=1000,device=device)
         model.load_state_dict(torch.load("checkpoints/DDPM_CFG.pth", map_location=device))
         model.eval()
@@ -166,6 +167,7 @@ if __name__ == "__main__":
         show_prediction_fid(valloader,scheduler,model,device,eta=args.eta,inference_step=args.inference_step,cfg=args.cfg, cfg_weight=args.cfg_weight)
                
     else :
+        model = DiffusionUnet(cfg=False).to(device)
         scheduler = DDIMScheduler(inference_step=1000,device=device)
         scheduler.set_time(inference_step=args.inference_step)
         model.load_state_dict(torch.load("checkpoints/DDPM.pth", map_location=device))
