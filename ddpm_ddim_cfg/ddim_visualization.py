@@ -129,7 +129,7 @@ def show_prediction_DDPM_fid(valloader, scheduler, model, device, eta,  out_dir=
                 else:
                     noise = model(x_t, t_tensor)
 
-                _, x_t_1, __ = scheduler.reverse_process(t=t_tensor, x_t=x_t, eps=noise, eta=eta)
+                _, x_t_1, __ = scheduler.reverse_process(t=t_tensor, x_t=x_t, eps=noise)
                 x_t = x_t_1
 
             gen_imgs = (x_t + 1) / 2 
@@ -164,7 +164,7 @@ if __name__ == "__main__":
         model.load_state_dict(torch.load("checkpoints/DDPM_CFG.pth", map_location=device))
         model.eval()
         #show_prediction(valloader,scheduler,model,device,eta=args.eta,inference_step=args.inference_step,cfg=args.cfg, cfg_weight=args.cfg_weight)
-        show_prediction_fid(valloader,scheduler,model,device,eta=args.eta,inference_step=args.inference_step,cfg=args.cfg, cfg_weight=args.cfg_weight)
+        show_prediction_DDPM_fid(valloader,scheduler,model,device,eta=args.eta,inference_step=args.inference_step,cfg=args.cfg, cfg_weight=args.cfg_weight)
                
     else :
         model = DiffusionUnet(cfg=False).to(device)
