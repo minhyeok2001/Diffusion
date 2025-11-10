@@ -223,6 +223,15 @@ For more details, check [Run named "DDPM" on W&B](https://wandb.ai/mhroh01-ajou-
   </tr>
 </table>
 
+
+<p align="center">
+  <img width="968" height="1190" alt="image" src="https://github.com/user-attachments/assets/7540a5bb-0648-4cc1-904e-8204cbcf3f2e" /><br>
+  <i>Results of DDIM with each step, eta</i>
+</p>
+
+
+
+
             
 
 
@@ -230,6 +239,7 @@ For more details, check [Run named "DDPM" on W&B](https://wandb.ai/mhroh01-ajou-
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
