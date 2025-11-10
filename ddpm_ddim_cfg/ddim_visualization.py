@@ -103,7 +103,7 @@ def show_prediction_DDPM_fid(valloader, scheduler, model, device, eta,  out_dir=
     
     os.makedirs(out_dir, exist_ok=True)
     real_dir = os.path.join(out_dir, f"real")
-    gen_dir  = os.path.join(out_dir, f"gen")
+    gen_dir  = os.path.join(out_dir, f"gen_{cfg_weight}")
     os.makedirs(real_dir, exist_ok=True)
     os.makedirs(gen_dir,  exist_ok=True)
     save_idx = 0
@@ -134,7 +134,7 @@ def show_prediction_DDPM_fid(valloader, scheduler, model, device, eta,  out_dir=
 
             gen_imgs = (x_t + 1) / 2 
             for i in range(gen_imgs.size(0)):
-                save_image(gen_imgs[i].cpu(), os.path.join(gen_dir, f"{save_idx:06d}.png"))
+                save_image(gen_imgs[i].cpu(), os.path.join(gen_dir, f"{save_idx:06d}_cfgweight_{cfg_weight}.png"))
 
             save_idx += img.size(0)
 
