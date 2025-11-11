@@ -157,7 +157,18 @@ For more details, check [Run named "DDPM" on W&B](https://wandb.ai/mhroh01-ajou-
   <i>Inference from random noise</i>
 </p>
 
+**3. DDIM code implementation issues (Mathematical derivation, timestep handling)**
 
+When using subsampled timesteps in DDIM — for example, running 100 steps instead of the full 1000 —
+the _alpha_ values should be **derived from cumprod_alphas**, rather than directly using the original alpha values from DDPM.
+
+This is typically implemented in code as follows:
+```
+t_prev = (t-1)*self.ratio
+t = t * self.ratio
+t_prev_safe = t_prev.clamp(min=0)
+a_prev_vals = self.cumprod_alpha[t_prev_safe]
+```
 
 
 ## Experimental result 
@@ -174,12 +185,24 @@ For more details, check [Run named "DDPM" on W&B](https://wandb.ai/mhroh01-ajou-
     <td>172.30</td>
   </tr>
   <tr>
-    <td>DDPM w/ cfg</td>
-    <td>asddas</td>
+    <td>DDPM w/ cfg (cfg_weight = 1.5)</td>
+    <td>48.85</td>
+  </tr>
+  <tr>
+    <td>DDPM w/ cfg (cfg_weight = 2.0)</td>
+    <td>55.04</td>
+  </tr>
+  <tr>
+    <td>DDPM w/ cfg (cfg_weight = 2.5)</td>
+    <td><b>23.99</b></td>
+  </tr>
+  <tr>
+    <td>DDPM w/ cfg (cfg_weight = 3.0)</td>
+    <td>37.45</td>
   </tr>
 </table>
 
-
+----
 
 **Table 2. FID Scores of DDIM Models by Inference Step and η Value**
 
@@ -217,28 +240,45 @@ For more details, check [Run named "DDPM" on W&B](https://wandb.ai/mhroh01-ajou-
   </tr>
   <tr>
     <td>1000</td>
-    <td>155.86</td>
+    <td><b>155.86</b></td>
     <td>159.62</td>
     <td>251.57</td>
   </tr>
 </table>
 
+----
 
+**Fig 1. Results of DDIM with each step, eta**
 <p align="center">
   <img width="968" height="1190" alt="image" src="https://github.com/user-attachments/assets/7540a5bb-0648-4cc1-904e-8204cbcf3f2e" /><br>
-  <i>Results of DDIM with each step, eta</i>
+</p>
+
+## Points to consider 
+
+1.	Why do my DDIM results underperform, even though the paper suggests ~100 sampling steps are sufficient? It seems like 750 steps images are fine, but ~500 steps images are not good 
+<p align="center">
+	<img width="1133" height="396" alt="스크린샷 2025-11-11 오후 4 11 14" src="https://github.com/user-attachments/assets/31d6ddca-43cd-4121-8b0c-9f5c4ebc7b10" />
+	<i> Experiments from denoising diffusion implicit model, ICLR 2021</i>
 </p>
 
 
+2.	Why is there such a large performance gap between runs without CFG and with CFG?
 
 
-            
+3.	According to Fig 1, with respect to the sampling timestep size, denoising is described as progressing from coarse structure to fine details. How can we explain this?
+   
+In my opinion, points 1 and 2 depend heavily on the dataset and the number of validation images, which seems reasonable to me.
+
+But point 3, I guess that when the timestep interval is too large, each denoising step has to reconstruct too much information at once, making the process overly coarse.
+
+
 
 
 ## Reference
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
