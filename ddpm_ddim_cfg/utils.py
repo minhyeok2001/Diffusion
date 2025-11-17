@@ -101,6 +101,50 @@ class DDPMScheduler(BaseScheduler):
 
         return mu, sample_prev, noise
     
+    def reverse_process_x_0(self,t,x_t,x_0,noise=None):
+        
+        alpha_bar = self.teeth(self.cumprod_alpha,t)
+        alpha = self.teeth(self.alpha,t)
+        alpha_bar_prev = self.teeth(torch.cat([torch.tensor([1.0],device=x_t.device),self.cumprod_alpha[:-1]],dim=0),t)
+        sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha)
+        
+        #mu = (1 / torch.sqrt(alpha)) * (x_t - ((1-alpha) / torch.sqrt(1-alpha_bar)) * x_0)
+        mu = (torch.sqrt(alpha) * (1-alpha_bar_prev) / (1 - alpha_bar)) * x_t + torch.sqrt(alpha_bar_prev) * (1-alpha) * x_0 / (1 - alpha_bar)
+        if noise is None:
+            noise = torch.randn_like(x_t)
+            
+        sample_prev = mu + torch.sqrt(sigma_square) * noise
+
+        return mu, sample_prev, noise
+    
+    def reverse_process_mu(self,t,x_t,mu,noise=None):
+        
+        alpha_bar = self.teeth(self.cumprod_alpha,t)
+        alpha = self.teeth(self.alpha,t)
+        alpha_bar_prev = self.teeth(torch.cat([torch.tensor([1.0],device=x_t.device),self.cumprod_alpha[:-1]],dim=0),t)
+        sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha)
+        
+        #mu = (1 / torch.sqrt(alpha)) * (x_t - ((1-alpha) / torch.sqrt(1-alpha_bar)) * x_0)
+        #mu = (torch.sqrt(alpha) * (1-alpha_bar_prev) / (1 - alpha_bar)) * x_t + torch.sqrt(alpha_bar_prev) * (1-alpha) * x_0 / (1 - alpha_bar)
+        
+        if noise is None:
+            noise = torch.randn_like(x_t)
+            
+        sample_prev = mu + torch.sqrt(sigma_square) * noise
+
+        return mu, sample_prev, noise
+    
+    def posterior_mean(self,t,x_t,x_0):
+        
+        alpha_bar = self.teeth(self.cumprod_alpha,t)
+        alpha = self.teeth(self.alpha,t)
+        alpha_bar_prev = self.teeth(torch.cat([torch.tensor([1.0],device=x_t.device),self.cumprod_alpha[:-1]],dim=0),t)
+        sigma_square = ((1-alpha_bar_prev) / (1-alpha_bar)) * (1-alpha)
+        
+        mu = (torch.sqrt(alpha) * (1-alpha_bar_prev) / (1 - alpha_bar)) * x_t + torch.sqrt(alpha_bar_prev) * (1-alpha) * x_0 / (1 - alpha_bar)
+
+        return mu
+    
 ### 처음에는 cfg를 여기서 하려고 했는데, 그러지말고 그냥 실제 inference time에서 eps 인풋값만 cond uncond로 바꾸어서 하면 됨
 
 class DDIMScheduler(BaseScheduler):

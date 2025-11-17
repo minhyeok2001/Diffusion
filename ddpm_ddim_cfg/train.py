@@ -38,6 +38,7 @@ def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoi
             
             else :
                 noise = model(x_t,t)
+            
             _,x_t_1,__ = ddpm_scheduler.reverse_process(t=t,x_t=x_t,eps=noise)
             x_t = x_t_1
         
@@ -55,6 +56,160 @@ def show_prediction(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoi
                             
     return x_t, img_path
 
+def show_prediction_x_0(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoints/val_samples",cfg=False,cfg_weight=2.5):
+    img, cls = next(iter(valloader))
+    img = img.to(device)
+    cls = cls.to(device)
+    img = img * 2 - 1
+    t_len = len(ddpm_scheduler.timesteps)
+    x_t = torch.randn_like(img) ## 어차피 처음엔 노이즈니까 이렇게 고고 
+    
+    snap_idxs = torch.linspace(0, t_len - 1, steps=10).round().long().tolist()
+    snap_idxs = set(int(i) for i in snap_idxs)
+    snapshots = [] 
+    
+    model.eval()
+    with torch.no_grad():
+        for t in range(t_len-1,-1,-1):
+            t= torch.full((img.shape[0],), t, device=device, dtype=torch.long)
+
+            x_0 = model(x=x_t,t=t,cls=cls)
+            _,x_t_1,__ = ddpm_scheduler.reverse_process_x_0(t=t,x_t=x_t,x_0=x_0)
+            x_t = x_t_1
+        
+            t_idx_int = int(t[0].item())
+            if t_idx_int in snap_idxs:
+                x_t_1 = (x_t_1 +1 )/2
+                snapshots.append(x_t_1[:min(8, x_t_1.size(0))])
+
+    samples = torch.cat(snapshots, dim=-1)
+    grid = make_grid(samples, nrow=1, normalize=False)
+    os.makedirs(out_dir, exist_ok=True)
+
+    img_path = os.path.join(out_dir, f"iter_{step}_timeline.png")
+    save_image(grid, img_path)
+                            
+    return x_t, img_path
+
+
+def show_prediction_mu(step,valloader,ddpm_scheduler,model,device,out_dir="checkpoints/val_samples",cfg=False,cfg_weight=2.5):
+    img, cls = next(iter(valloader))
+    img = img.to(device)
+    cls = cls.to(device)
+    img = img * 2 - 1
+    t_len = len(ddpm_scheduler.timesteps)
+    x_t = torch.randn_like(img) ## 어차피 처음엔 노이즈니까 이렇게 고고 
+    
+    snap_idxs = torch.linspace(0, t_len - 1, steps=10).round().long().tolist()
+    snap_idxs = set(int(i) for i in snap_idxs)
+    snapshots = [] 
+    
+    model.eval()
+    with torch.no_grad():
+        for t in range(t_len-1,-1,-1):
+            t= torch.full((img.shape[0],), t, device=device, dtype=torch.long)
+    
+            mu = model(x=x_t,t=t,cls=cls)
+            _,x_t_1,__ = ddpm_scheduler.reverse_process_mu(t=t,x_t=x_t,mu=mu)
+
+            x_t = x_t_1
+        
+            t_idx_int = int(t[0].item())
+            if t_idx_int in snap_idxs:
+                x_t_1 = (x_t_1 +1 )/2
+                snapshots.append(x_t_1[:min(8, x_t_1.size(0))])
+
+    samples = torch.cat(snapshots, dim=-1)
+    grid = make_grid(samples, nrow=1, normalize=False)
+    os.makedirs(out_dir, exist_ok=True)
+
+    img_path = os.path.join(out_dir, f"iter_{step}_timeline.png")
+    save_image(grid, img_path)
+                            
+    return x_t, img_path
+
+
+def show_prediction_x_0_fid(valloader, ddpm_scheduler, model, device, out_dir="checkpoints/val_samples", cfg=True, cfg_weight=2.5):
+    model.eval()
+    os.makedirs(out_dir, exist_ok=True)
+    real_dir = os.path.join(out_dir, "real")
+    gen_dir  = os.path.join(out_dir, "gen")
+    os.makedirs(real_dir, exist_ok=True)
+    os.makedirs(gen_dir,  exist_ok=True)
+
+    t_len = len(ddpm_scheduler.timesteps)
+    save_idx = 0
+
+    with torch.no_grad():
+        for img, cls in tqdm(valloader):
+            img = img.to(device)
+            cls = cls.to(device)
+
+            img_scaled = img * 2 - 1
+
+            real_imgs = img.detach().cpu()
+            for i in range(real_imgs.size(0)):
+                save_image(real_imgs[i], os.path.join(real_dir, f"{save_idx:06d}.png"))
+
+            x_t = torch.randn_like(img_scaled) 
+            for t in range(t_len - 1, -1, -1):
+                t= torch.full((img.shape[0],), t, device=device, dtype=torch.long)
+
+                x_0 = model(x=x_t,t=t,cls=cls)
+                _,x_t_1,__ = ddpm_scheduler.reverse_process_x_0(t=t,x_t=x_t,x_0=x_0)
+                x_t = x_t_1
+
+            gen_imgs = (x_t + 1) / 2 
+            for i in range(gen_imgs.size(0)):
+                save_image(gen_imgs[i].cpu(), os.path.join(gen_dir, f"{save_idx:06d}.png"))
+
+            save_idx += img.size(0)
+
+    print(f"저장 완료: {real_dir}, {gen_dir}")
+    return real_dir, gen_dir
+
+
+def show_prediction_mu_fid(valloader, ddpm_scheduler, model, device, out_dir="checkpoints/val_samples", cfg=True, cfg_weight=2.5):
+    model.eval()
+    os.makedirs(out_dir, exist_ok=True)
+    real_dir = os.path.join(out_dir, "real")
+    gen_dir  = os.path.join(out_dir, "gen")
+    os.makedirs(real_dir, exist_ok=True)
+    os.makedirs(gen_dir,  exist_ok=True)
+
+    t_len = len(ddpm_scheduler.timesteps)
+    save_idx = 0
+
+    with torch.no_grad():
+        for img, cls in tqdm(valloader):
+            img = img.to(device)
+            cls = cls.to(device)
+
+            img_scaled = img * 2 - 1
+
+            real_imgs = img.detach().cpu()
+            for i in range(real_imgs.size(0)):
+                save_image(real_imgs[i], os.path.join(real_dir, f"{save_idx:06d}.png"))
+
+            x_t = torch.randn_like(img_scaled) 
+            for t in range(t_len - 1, -1, -1):
+                t = torch.full((img.shape[0],), t, device=device, dtype=torch.long)
+                
+                mu = model(x=x_t,t=t,cls=cls)
+                _,x_t_1,__ = ddpm_scheduler.reverse_process_mu(t=t,x_t=x_t,mu=mu)
+                x_t = x_t_1
+
+            gen_imgs = (x_t + 1) / 2 
+            for i in range(gen_imgs.size(0)):
+                save_image(gen_imgs[i].cpu(), os.path.join(gen_dir, f"{save_idx:06d}.png"))
+
+            save_idx += img.size(0)
+
+    print(f"저장 완료: {real_dir}, {gen_dir}")
+    return real_dir, gen_dir
+
+
+
 def run(args):
     
     ## 이렇게 하면 안되지만, colab 이용해야하므로 ..,,
@@ -69,6 +224,9 @@ def run(args):
     cfg_dropout= args.cfg_dropout
     cfg_weight = args.cfg_weight
     diffusion_type = args.diffusion_type
+    ckpt_name = args.ckpt_name
+    pred_type = args.pred_type
+    
     
     wandb.init(
         project="Diffusion",
@@ -101,10 +259,16 @@ def run(args):
     
     loss_ft = DiffusionLoss()
     
-    checkpoint_path = "checkpoints/Diffusion.pth"
+    #checkpoint_path = "checkpoints/Diffusion_.pth"
+    checkpoint_path = os.path.join("checkpoints",ckpt_name)
     
     sample_dir = "checkpoints/val_samples"
     os.makedirs(sample_dir, exist_ok=True)
+    
+    if pred_type == "eps" or  pred_type == "x_0" or pred_type == "mu":
+        pass
+    else :
+        raise RuntimeError("Networ type Error !!")
     
     ## 3. train loop
     ## method : 배치사이즈만큼의 time step을 랜덤으로 만든다 -> 해당 타임스텝에서의 forward process를 가져온다 -> 그걸 넣고 노이즈를 예측하도록 한다 
@@ -132,12 +296,23 @@ def run(args):
 
             ## 2. 해당 t에 맞게 forward process를 한다 with noise_gt
             x_t, noise_gt = ddpm_scheduler.forward_process(t=t,x_0=img)
-
-            ## 3. noise 예측 Unet
-            noise_pred = model(x=x_t,t=t,cls=cls)
-
-            loss = loss_ft(noise_pred,noise_gt)
             
+            ## 3. noise 예측 Unet (Option. eps 말고도 mu, x_0 predictor 선택 가능)
+            if pred_type == "eps":
+                noise_pred = model(x=x_t,t=t,cls=cls)
+                loss = loss_ft(noise_pred,noise_gt)    
+                
+            elif pred_type == "x_0" :
+                x_0_pred = model(x=x_t,t=t,cls=cls) ## 이제는 model의 예측은 x_0
+                x_0_gt = img
+                loss = loss_ft(x_0_pred,x_0_gt)
+                
+            elif pred_type == "mu" :
+                mu_pred = model(x=x_t,t=t,cls=cls) ## 이제는 model의 예측은 mu
+                # gt는 그 alpha_cumprod한걸 사용하면 될듯
+                mu_gt = ddpm_scheduler.posterior_mean(t=t,x_t=x_t,x_0=img)
+                loss = loss_ft(mu_pred,mu_gt)
+
             loss.backward()
             optimizer.step()
             
@@ -162,17 +337,33 @@ def run(args):
                 
                 x_t, noise_gt = ddpm_scheduler.forward_process(t=t,x_0=img)
                 
-                noise_pred = model(x=x_t,t=t,cls=cls)
-
-                loss = loss_ft(noise_pred,noise_gt)
+                if pred_type == "eps":
+                    noise_pred = model(x=x_t,t=t,cls=cls)
+                    loss = loss_ft(noise_pred,noise_gt)    
+                    
+                elif pred_type == "x_0" :
+                    x_0_pred = model(x=x_t,t=t,cls=cls) 
+                    x_0_gt = img
+                    loss = loss_ft(x_0_pred,x_0_gt)
+                    
+                elif pred_type == "mu" :
+                    mu_pred = model(x=x_t,t=t,cls=cls)
+                    mu_gt = ddpm_scheduler.posterior_mean(t=t,x_t=x_t,x_0=img)
+                    loss = loss_ft(mu_pred,mu_gt)
 
                 val_loss += loss.item()
             
         avg_val_loss = val_loss / val_batches
         print(f"Epoch [{i+1}/{epoch}] | Val Loss: {avg_val_loss:.6f}")
         #scheduler.step()
-        _, img_path = show_prediction(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,cfg=cfg,device=device,cfg_weight=cfg_weight)
         
+        if pred_type == "eps" :
+            _, img_path = show_prediction(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,cfg=cfg,device=device,cfg_weight=cfg_weight)
+        elif pred_type == "x_0" :
+            _, img_path = show_prediction_x_0(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,cfg=cfg,device=device,cfg_weight=cfg_weight)
+        elif pred_type == "mu" :
+            _, img_path = show_prediction_mu(step=i,valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,cfg=cfg,device=device,cfg_weight=cfg_weight)
+
         wandb.log({
             "train_loss": avg_train_loss,
             "val_loss": avg_val_loss,
@@ -186,6 +377,14 @@ def run(args):
     
     wandb.finish()
     
+    ## 바로 fid score 출력하도록,..
+    
+    if pred_type == "x_0" :
+        show_prediction_x_0_fid(valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,device=device)
+    elif pred_type == "mu" :
+        show_prediction_mu_fid(valloader=visual_valloader,ddpm_scheduler=ddpm_scheduler,model=model,device=device)
+             
+    
     
     
 if __name__ == '__main__':
@@ -193,12 +392,14 @@ if __name__ == '__main__':
     
     parser.add_argument("--epoch", type=int, default=1000)
     parser.add_argument("--lr", type=float, default=0.00005)
-    parser.add_argument("--cfg", type=bool, default=False)
+    parser.add_argument("--cfg", action="store_true")
     parser.add_argument("--cfg_dropout", type=float, default=0.2)
     parser.add_argument("--cfg_weight", type=float, default=2.5)
     parser.add_argument("--num_workers", type=int, default=4)
     parser.add_argument("--batch_size", type=int, default=32)
     parser.add_argument("--diffusion_type", type=str, default="ddpm",choices=["ddpm", "ddim"],help="Choose which diffusion algorithm to use: 'ddpm' or 'ddim'.")
+    parser.add_argument("--ckpt_name",type=str)
+    parser.add_argument("--pred_type",type=str)
     
     args = parser.parse_args()
     
