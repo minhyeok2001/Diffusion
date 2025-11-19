@@ -102,13 +102,13 @@ if __name__ == "__main__":
     valset = data.dataloader.CustomDataset(test=True)
     valloader = torch.utils.data.DataLoader(valset,batch_size=16,num_workers=4,shuffle=False)
 
-    model = DiffusionUnet(cfg=True).to(device)
+    model = DiffusionUnet(cfg=False).to(device)
     scheduler = DDPMScheduler(inference_step=1000,device=device)
     model.load_state_dict(torch.load("checkpoints/Diffusion_mu.ckpt", map_location=device))
     model.eval()
     show_prediction_mu_fid(valloader,scheduler,model,device)
     
-    model = DiffusionUnet(cfg=True).to(device) 
+    model = DiffusionUnet(cfg=False).to(device) 
     scheduler = DDPMScheduler(inference_step=1000,device=device)
     model.load_state_dict(torch.load("checkpoints/Diffusion_x_0.pth", map_location=device))
     model.eval()
