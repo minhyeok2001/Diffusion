@@ -14,7 +14,7 @@ class DpmSolver(nn.Module):
         dpm_sigmas = torch.sqrt(1 - cumprod_alpha)
         
         ## 람다는 sde 식에서 log(alpha)-log(sigma) 임 
-        dpm_lambdas = 2*torch.log(dpm_alphas/dpm_sigmas)
+        dpm_lambdas = torch.log(dpm_alphas/dpm_sigmas)
         
         ## 지금 개인적인 생각으로는, DDIM case와는 다르게 그냥 쌩 alpha를 쓰지는 않고 SNR이 전부다 cumprod로 구성되어있으므로,
         # 굳이 그 alpha를 계산하지 않아줘도 될듯. cumprod끼리 나눠서 ..
