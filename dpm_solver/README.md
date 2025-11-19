@@ -29,6 +29,19 @@ and constructs first-, second-, and third-order high-accuracy ODE solvers, enabl
 
 ## Issues encountered
 
+## Experimental result
+
+Guys remember in DDIM? even 100 steps was hard to recognize, However, in DPM-solver, even 5 steps does generate plausible image !!!
+<img width="522" height="132" alt="image" src="https://github.com/user-attachments/assets/ab610cfe-6e13-46ed-9dd5-4663dec96d1e" />
+
+-> 이게 무려 5step만에 !!
+
+
+<img width="522" height="132" alt="image" src="https://github.com/user-attachments/assets/66855b73-5229-472a-8649-d0ca800ec0f2" />
+
+-> 10 step wow
+
+
 
 
 
@@ -36,5 +49,6 @@ and constructs first-, second-, and third-order high-accuracy ODE solvers, enabl
 ## Reference
 - original paper - https://arxiv.org/abs/2206.00927
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
