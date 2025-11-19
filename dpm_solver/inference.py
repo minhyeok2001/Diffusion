@@ -20,7 +20,7 @@ flow
 """
 
 def run(args):
-    device = "mps"
+    device = "cuda"
     num_order = args.num_order
     inference_step = args.inference_step
     cfg_weight = args.cfg_weight
