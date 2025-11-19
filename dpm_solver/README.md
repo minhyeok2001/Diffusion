@@ -26,10 +26,36 @@ and constructs first-, second-, and third-order high-accuracy ODE solvers, enabl
   <i>High-order ODE solver algorithm from DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling in Around 10 Steps</i>
 </p>
 
+## Issues encountered
+
+### 1. Changing code implementation style while finding t_prev
+
+In DDIM, when inference timestep was given as 100 when total num_trainstep is 1000, I used to implement with the code below.
+```
+t_prev = (t-1)*self.ratio
+t = t * self.ratio
+```
+but with this method, I found that it does not exactly start from 999 time.
+
+So instead, I used torch.linspace() for DPM-solver
+
+### 2. Finding corresponding midpoint time in 2nd-order DPM-solver
+
+In original paper, It suggests to use inverse mapping using interpolation to solve midpoint time.
+
+Instead, In my code, I simply select the closest discrete timestep
+
+```
+distance = torch.abs(self.dpm_lambdas - lambda_mid)
+mid = torch.argmin(distance)
+```
+This is a practical discrete approximation of the continuous interpolation.
 
 ## Experimental result
 
-Guys, remember DDPM w/ cfg? FID score was 23.99 with 1000 times sampling.  But with DPM-Solver, just 5 steps already produce plausible images!!!
+Remember DDPM w/ cfg? It takes about 1 hour to eval with 1000 steps sampling. 
+
+But with DPM-Solver, It takes only 20 seconds with 5 steps sampling, even with better performance !! 
 
 <p align="center">
   <img width="522" height="132" alt="image" src="https://github.com/user-attachments/assets/ab610cfe-6e13-46ed-9dd5-4663dec96d1e" /> <br>
@@ -93,6 +119,7 @@ Cannot find any reason for this,... Maybe it’s because my dataset is quite sma
 ## Reference
 - original paper - https://arxiv.org/abs/2206.00927
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
