@@ -171,6 +171,12 @@ a_prev_vals = self.cumprod_alpha[t_prev_safe]
 ```
 
 
+**4. Mean predictor training issues**
+
+As the equations are proved mathematically, we can choose a single network targeting noise predictor or x_0 predictor or mean predictor.
+If we choose to
+
+
 ## Experimental result 
 
 **Table 1. FID Scores of DDPM Models (with / without Classifier-Free Guidance)**
@@ -271,6 +277,7 @@ In my opinion, points 1 and 2 depend heavily on the dataset and the number of va
 
 But point 3, I guess that when the timestep interval is too large, each denoising step has to reconstruct too much information at once, making the process overly coarse.
 
+![Uploading 스크린샷 2025-11-19 오전 10.56.48.png…]()
 
 
 
@@ -278,6 +285,7 @@ But point 3, I guess that when the timestep interval is too large, each denoisin
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
