@@ -23,6 +23,7 @@ class DpmSolver(nn.Module):
         self.register_buffer("dpm_sigmas",dpm_sigmas)
         self.register_buffer("dpm_lambdas",dpm_lambdas)
         
+        self.num_timestep = num_timestep 
         self.inference_step = inference_step
         self.ratio = num_timestep//inference_step
 
@@ -50,7 +51,11 @@ class DpmSolver(nn.Module):
         return x_t
 
     def second_order(self,):
+        ## 다 좋은데, 만약 반띵한걸 어케 
         pass
+        
+        
+        
     def third_order(self,):
         pass
 

@@ -12,13 +12,6 @@ from ddpm_ddim_cfg.diffusion_model import DiffusionUnet
 from tqdm import tqdm
 from torchvision.utils import make_grid, save_image
 
-"""
-flow 
-1. ODE sovler class를 만들어서, 여기서 reverse process를 정의하기. ( 1차, 2차 , 3차 ... ) -> args로 받기
-2. 이 외, 모델은 DDPM_cfg pth를 활용
-3. sampling 후에 FiD score 비교
-"""
-
 def run(args):
     device = "cuda"
     num_order = args.num_order
@@ -33,18 +26,32 @@ def run(args):
     valset = data.dataloader.CustomDataset(test=True)
     valloader = torch.utils.data.DataLoader(valset,batch_size=4,num_workers=4,shuffle=False)
     
-    os.makedirs("checkpoints/samples", exist_ok=True)
+    out_dir =f"checkpoints/first_step_{inference_step}"
+    
+    os.makedirs(out_dir, exist_ok=True)
+    real_dir = os.path.join(out_dir, "real")
+    gen_dir  = os.path.join(out_dir, "gen")
+    os.makedirs(real_dir, exist_ok=True)
+    os.makedirs(gen_dir,  exist_ok=True)
+    
     model.eval()
+
+    save_idx = 0
     with torch.no_grad():
         for img, cls in tqdm(valloader):
             img = img.to(device)
             cls = cls.to(device)
 
             img = img * 2 - 1
+            
+            real_imgs = img.detach().cpu()
+            for i in range(real_imgs.size(0)):
+                save_image(real_imgs[i], os.path.join(real_dir, f"{save_idx:06d}.png"))
 
             x_s = torch.randn_like(img)
-        
+            
             time_list = torch.linspace(dpm_solver.num_timestep-1,0,steps=inference_step,device=device,dtype=torch.long)
+            
             for idx in range(len(time_list)-1):
                 
                 ## 이부분 수정요망 -> ratio 곱하지말고 그냥 torch.linspace 활용
@@ -72,12 +79,14 @@ def run(args):
                 
                 x_s = x_t
             
-            x_vis = (x_s + 1) / 2
-            x_vis = torch.clamp(x_vis, 0, 1)
-
-            grid = make_grid(x_vis, nrow=8)
-            save_image(grid, f"checkpoints/samples/sample_{inference_step}.png")
-            break
+            
+            gen_imgs = (x_t + 1) / 2 
+            for i in range(gen_imgs.size(0)):
+                save_image(gen_imgs[i].cpu(), os.path.join(gen_dir, f"{save_idx:06d}.png"))
+                
+            save_idx += img.size(0)
+            
+    print(f"저장 완료: {real_dir}, {gen_dir}")
 
 
 if __name__ == '__main__':
