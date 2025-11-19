@@ -286,7 +286,7 @@ The comparison table is on the below, Table 3.
   </tr>
   <tr>
     <td><b>172.30</b></td>
-    <td>401.41 (Does not converge. Black samples)</td>
+    <td>401.41 (loss does not converge, produces black images)</td>
     <td>258.32</td>
   </tr>
 </table>
@@ -322,6 +322,7 @@ The comparison table is on the below, Table 3.
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
