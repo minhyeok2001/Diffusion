@@ -27,28 +27,73 @@ and constructs first-, second-, and third-order high-accuracy ODE solvers, enabl
 </p>
 
 
-## Issues encountered
-
 ## Experimental result
 
-Guys remember in DDIM? even 100 steps was hard to recognize, However, in DPM-solver, even 5 steps does generate plausible image !!!
-<img width="522" height="132" alt="image" src="https://github.com/user-attachments/assets/ab610cfe-6e13-46ed-9dd5-4663dec96d1e" />
+Guys, remember DDPM w/ cfg? FID score was 23.99 with 1000 times sampling.  But with DPM-Solver, just 5 steps already produce plausible images!!!
 
--> 이게 무려 5step만에 !!
-
-
-<img width="522" height="132" alt="image" src="https://github.com/user-attachments/assets/66855b73-5229-472a-8649-d0ca800ec0f2" />
-
--> 10 step wow
+<p align="center">
+  <img width="522" height="132" alt="image" src="https://github.com/user-attachments/assets/ab610cfe-6e13-46ed-9dd5-4663dec96d1e" /> <br>
+  <i>5step results on 1st-order approximation</i>
+</p>
 
 
+<p align="center">
+  <img width="522" height="132" alt="image" src="https://github.com/user-attachments/assets/66855b73-5229-472a-8649-d0ca800ec0f2" /> <br>
+  <i>10step results on 1st-order approximation</i>
+</p>
 
+--- 
 
+**Table 1. result of 1st-order & 2nd-order approximation**
+
+<table>
+  <tr>
+    <th> sampling steps </th>
+    <th>1st order</th>
+    <th>2nd order</th>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td><b>13.62</b></td>
+    <td>45.17</td>
+  </tr>
+  <tr>
+    <td>10</td>
+    <td>36.03</td>
+    <td>103.21</td>
+  </tr>
+  <tr>
+    <td>20</td>
+    <td>60.52</td>
+    <td>77.78</td>
+  </tr>
+  <tr>
+    <td>50</td>
+    <td>71.79</td>
+    <td>93.11</td>
+  </tr>
+  <tr>
+    <td>100</td>
+    <td>86.52</td>
+    <td>68.12</td>
+  </tr>
+</table>
+
+In the N-order case, the NFE is 2 * N * inference_step ( multiplying 2 is from CFG )
+
+## Points to consider
+
+**1. Why does the FID score of my DPM-solver get worse when the NFE becomes larger?**
+
+As you can see the result on Table 1 above, DPM-solver get worse when NFE becomes larger in 1st-order approximation. 
+
+Cannot find any reason for this,... Maybe it’s because my dataset is quite small, which could introduce bias. FID tends to work best on large datasets...
 
 
 ## Reference
 - original paper - https://arxiv.org/abs/2206.00927
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
