@@ -277,6 +277,20 @@ The comparison table is on the below, Table 3.
 **Table 3. Comparison of noise / mean / x_0 predictor**
 
 
+
+<table>
+  <tr>
+    <th>noise predictor</th>
+    <th>mean predictor</th>
+    <th>x_0 predictor</th>
+  </tr>
+  <tr>
+    <td><b>172.30</b></td>
+    <td>401.41 (Does not converge. Black samples)</td>
+    <td>258.32</td>
+  </tr>
+</table>
+
 ----
 **Fig 1. Results of DDIM with each step, eta**
 <p align="center">
@@ -308,6 +322,7 @@ The comparison table is on the below, Table 3.
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
