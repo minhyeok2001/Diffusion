@@ -50,10 +50,47 @@ class DpmSolver(nn.Module):
         x_t = self.basic_function(t,s,x_s,integral_term)
         return x_t
 
-    def second_order(self,):
-        ## 다 좋은데, 만약 반띵한걸 어케 
-        pass
+    def second_order(self,t,s,x_s,cls,model,cfg_weight):
+        ## 다 좋은데, 만약 반띵한걸 어케 구하지 ??
+        ## 그러니까... lambda가 반띵되는 부분의 timestep을 구해야함.
+
+        sigma_t = self.teeth(self.dpm_sigmas,t)
+        sigma_s = self.teeth(self.dpm_sigmas,s)
+        lambda_t = self.teeth(self.dpm_lambdas,t)
+        lambda_s = self.teeth(self.dpm_lambdas,s)
         
+        
+        lambda_mid = (lambda_t + lambda_s)/2
+        
+        ## CS492 구현과는 조금 다르게 진행해보자.
+        ## mid값을 lambda table에서 뺀 다음에, 이거 abs가 가장 작은 값의 인덱스를 사용
+        
+        distance = torch.abs(self.dpm_lambdas - lambda_mid)
+        
+        mid = torch.argmin(distance)
+        
+        mid = torch.full((x_s.shape[0],),mid,dtype=torch.long,device=x_s.device)
+        
+        sigma_mid = self.teeth(self.dpm_sigmas,mid)
+        lambda_mid = self.teeth(self.dpm_lambdas,mid)
+        
+        cond_noise = model(x_s,s,cls)
+        uncond_noise = model(x_s,s,torch.zeros_like(cls))
+        noise1 = (1+cfg_weight)*cond_noise - cfg_weight * uncond_noise
+        
+        integral_term1 = sigma_mid * (torch.exp(lambda_mid-lambda_s)-1) * noise1
+        
+        x_mid = self.basic_function(mid,s,x_s,integral_term1)
+        
+        cond_noise = model(x_mid,mid,cls)
+        uncond_noise = model(x_mid,mid,torch.zeros_like(cls))
+        noise2 = (1+cfg_weight)*cond_noise - cfg_weight * uncond_noise
+        
+        integral_term2 = sigma_t * (torch.exp(lambda_t-lambda_mid)-1) * noise2
+        
+        x_t = self.basic_function(t,mid,x_mid,integral_term2)
+        
+        return x_t
         
         
     def third_order(self,):

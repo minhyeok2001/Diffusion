@@ -62,18 +62,17 @@ def run(args):
                 t = torch.full((img.shape[0],),t,device=device, dtype=torch.long) 
                 
                 ## CFG network
-                cond_noise = model(x_s,s,cls)
-                uncond_noise = model(x_s,s,torch.zeros_like(cls))
-                noise = (1+cfg_weight)*cond_noise - cfg_weight * uncond_noise
-                
                 if num_order == 1:
+                    cond_noise = model(x_s,s,cls)
+                    uncond_noise = model(x_s,s,torch.zeros_like(cls))
+                    noise = (1+cfg_weight)*cond_noise - cfg_weight * uncond_noise
                     x_t = dpm_solver.first_order(t=t,s=s,x_s=x_s,eps=noise)
                 
                 elif num_order == 2:
-                    x_t = dpm_solver.second_order(t=t,s=s,x_s=x_s,eps=noise)
+                    x_t = dpm_solver.second_order(t=t,s=s,x_s=x_s,cls=cls,model=model,cfg_weight=cfg_weight)
                     
                 elif num_order == 3:
-                    x_t = dpm_solver.third_order(t=t,s=s,x_s=x_s,eps=noise)
+                    x_t = dpm_solver.third_order(t=t,s=s,x_s=x_s,cls=cls,model=model,cfg_weight=cfg_weight)
                 else :
                     raise RuntimeError("NOT IMPLEMENTED YET !!")
                 
