@@ -184,6 +184,12 @@ the authors reported that training a mean predictor with a simple MSE loss does 
 indicating that mean prediction requires additional constraints or different loss formulations to work properly.
 
 <p align="center">
+  <img width="899" height="362" alt="스크린샷 2025-11-19 오전 11 29 04" src="https://github.com/user-attachments/assets/37174adc-c26f-4e47-96c4-12a001c2315b" /><br>
+<i>Mean predictor network does converge</i>
+</p>
+
+
+<p align="center">
   <img width="350" height="350" alt="스크린샷 2025-11-19 오전 10 56 48" src="https://github.com/user-attachments/assets/29607972-fa32-421b-80bd-3da4c5c71a10" /><br>
 <i>The comparison of mean predictor on the original DDPM paper</i>
 </p>
@@ -285,7 +291,6 @@ The comparison table is on the below, Table 3.
 	<i> Experiments from denoising diffusion implicit model, ICLR 2021</i>
 </p>
 
-
 2.	Why is there such a large performance gap between runs without CFG and with CFG?
 
 
@@ -303,6 +308,7 @@ But point 3, I guess that when the timestep interval is too large, each denoisin
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
