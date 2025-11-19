@@ -94,9 +94,7 @@ The detailed mathematical derivations are provided above.
 
 ## Issues encountered 
 
-### DDPM
-
-**1. Loss spike**
+### 1. Loss spike
 
 <p align="center">
 	<img width="700" height="500" alt="스크린샷 2025-11-04 오후 3 17 09" src="https://github.com/user-attachments/assets/b5d6557a-4168-42f3-9e61-710a6390873c" />
@@ -107,7 +105,8 @@ A noticeable loss spike was observed when using a learning rate of 5e-4.
 
 After several trials, I found that 5e-5 works better for my task, as shown above.
 
-**2. Poor reverse diffusion quality**
+---
+### 2. Poor reverse diffusion quality
 
 <p align="center">
   <img width="900" height="280" alt="asdasasd" src="https://github.com/user-attachments/assets/1710d7ff-f102-490a-ae8c-d6dc3a666541" /><br>
@@ -157,7 +156,8 @@ For more details, check [Run named "DDPM" on W&B](https://wandb.ai/mhroh01-ajou-
   <i>Inference from random noise</i>
 </p>
 
-**3. DDIM code implementation issues (Mathematical derivation, timestep handling)**
+---
+### 3. DDIM code implementation issues (Mathematical derivation, timestep handling)
 
 When using subsampled timesteps in DDIM — for example, running 100 steps instead of the full 1000 —
 the _alpha_ values should be **derived from cumprod_alphas**, rather than directly using the original alpha values from DDPM.
@@ -170,13 +170,27 @@ t_prev_safe = t_prev.clamp(min=0)
 a_prev_vals = self.cumprod_alpha[t_prev_safe]
 ```
 
+---
+### 4. Mean predictor training issues
 
-**4. Mean predictor training issues**
+Even though the DDPM framework allows training a single network to predict noise, x_0, or the mean, our experiments show that the mean predictor is highly unstable.
 
-As the equations are proved mathematically, we can choose a single network targeting noise predictor or x_0 predictor or mean predictor.
-If we choose to
+Both the **noise predictor and the x_0 predictor converge normally**, but the **mean predictor consistently fails to learn and collapses** to producing almost black samples.
 
+I found that it aligns to the observations from the original DDPM paper: 
 
+the authors reported that training a \mu predictor with a simple MSE loss does not converge,
+
+indicating that mean prediction requires additional constraints or different loss formulations to work properly.
+
+<p align="center">
+  <img width="350" height="350" alt="스크린샷 2025-11-19 오전 10 56 48" src="https://github.com/user-attachments/assets/29607972-fa32-421b-80bd-3da4c5c71a10" /><br>
+<i>The comparison of mean predictor on the original DDPM paper</i>
+</p>
+
+The comparison table is on the below, Table 3.
+
+---
 ## Experimental result 
 
 **Table 1. FID Scores of DDPM Models (with / without Classifier-Free Guidance)**
@@ -254,6 +268,10 @@ If we choose to
 
 ----
 
+**Table 3. Comparison of noise / mean / x_0 predictor**
+
+
+----
 **Fig 1. Results of DDIM with each step, eta**
 <p align="center">
   <img width="968" height="1190" alt="image" src="https://github.com/user-attachments/assets/7540a5bb-0648-4cc1-904e-8204cbcf3f2e" /><br>
@@ -277,7 +295,7 @@ In my opinion, points 1 and 2 depend heavily on the dataset and the number of va
 
 But point 3, I guess that when the timestep interval is too large, each denoising step has to reconstruct too much information at once, making the process overly coarse.
 
-![Uploading 스크린샷 2025-11-19 오전 10.56.48.png…]()
+4. Why mean predictor does not work(converge)?
 
 
 
@@ -285,6 +303,7 @@ But point 3, I guess that when the timestep interval is too large, each denoisin
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
