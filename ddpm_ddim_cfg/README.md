@@ -277,6 +277,20 @@ The comparison table is on the below, Table 3.
 **Table 3. Comparison of noise / mean / x_0 predictor**
 
 
+
+<table>
+  <tr>
+    <th>noise predictor</th>
+    <th>mean predictor</th>
+    <th>x_0 predictor</th>
+  </tr>
+  <tr>
+    <td><b>172.30</b></td>
+    <td>401.41 (loss does not converge, produces black images)</td>
+    <td>258.32</td>
+  </tr>
+</table>
+
 ----
 **Fig 1. Results of DDIM with each step, eta**
 <p align="center">
@@ -285,22 +299,32 @@ The comparison table is on the below, Table 3.
 
 ## Points to consider 
 
-1.	Why do my DDIM results underperform, even though the paper suggests ~100 sampling steps are sufficient? It seems like 750 steps images are fine, but ~500 steps images are not good
+1. Why do my DDIM results underperform, even though the paper suggests ~100 sampling steps are sufficient? It seems like 750 steps images are fine, but ~500 steps images are not good
 <p align="center">
 	<img width="1133" height="396" alt="스크린샷 2025-11-11 오후 4 11 14" src="https://github.com/user-attachments/assets/31d6ddca-43cd-4121-8b0c-9f5c4ebc7b10" />
 	<i> Experiments from denoising diffusion implicit model, ICLR 2021</i>
 </p>
 
-2.	Why is there such a large performance gap between runs without CFG and with CFG?
+2. Why is there such a large performance gap between runs without CFG and with CFG?
 
 
-3.	According to Fig 1, with respect to the sampling timestep size, denoising is described as progressing from coarse structure to fine details. How can we explain this?
-	   
+3. According to Fig 1, with respect to the sampling timestep size, denoising is described as progressing from coarse structure to fine details. How can we explain this?
+	
 	In my opinion, points 1 and 2 depend heavily on the dataset and the number of validation images, which seems reasonable to me.
 	
 	But point 3, I guess that when the timestep interval is too large, each denoising step has to reconstruct too much information at once, making the process overly coarse.
 
 4. Why mean predictor does not work(converge)?
+
+	In my opinion, the mean predictor relies on scheduler-dependent coefficients, whereas the noise and x₀ predictors do not. 
+   
+	As a result, the scheduler is not explicitly used during mean prediction, which forces the mean-prediction network to encode more information than the noise or x₀ networks. 
+   
+	This additional burden can lead to unstable training.
+	   
+
+
+
 
 
 
@@ -308,6 +332,9 @@ The comparison table is on the below, Table 3.
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
+
+
 
 
 
