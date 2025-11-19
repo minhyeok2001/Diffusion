@@ -295,10 +295,10 @@ The comparison table is on the below, Table 3.
 
 
 3.	According to Fig 1, with respect to the sampling timestep size, denoising is described as progressing from coarse structure to fine details. How can we explain this?
-   
-In my opinion, points 1 and 2 depend heavily on the dataset and the number of validation images, which seems reasonable to me.
-
-But point 3, I guess that when the timestep interval is too large, each denoising step has to reconstruct too much information at once, making the process overly coarse.
+	   
+	In my opinion, points 1 and 2 depend heavily on the dataset and the number of validation images, which seems reasonable to me.
+	
+	But point 3, I guess that when the timestep interval is too large, each denoising step has to reconstruct too much information at once, making the process overly coarse.
 
 4. Why mean predictor does not work(converge)?
 
@@ -308,6 +308,7 @@ But point 3, I guess that when the timestep interval is too large, each denoisin
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
