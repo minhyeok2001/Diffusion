@@ -179,7 +179,7 @@ Both the **noise predictor and the x_0 predictor converge normally**, but the **
 
 I found that it aligns to the observations from the original DDPM paper: 
 
-the authors reported that training a \mu predictor with a simple MSE loss does not converge,
+the authors reported that training a mean predictor with a simple MSE loss does not converge,
 
 indicating that mean prediction requires additional constraints or different loss formulations to work properly.
 
@@ -303,6 +303,7 @@ But point 3, I guess that when the timestep interval is too large, each denoisin
 - original paper - https://arxiv.org/abs/2006.11239
 - Mathematical approach - https://lilianweng.github.io/posts/2021-07-11-diffusion-models/
 - CS492 - https://mhsung.github.io/kaist-cs492d-fall-2024/
+
 
 
 
