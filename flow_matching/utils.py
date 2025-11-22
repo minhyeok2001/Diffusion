@@ -16,7 +16,7 @@ class FlowMatchingScheduler(nn.Module):
         
     def mu_t(self,t,x_1):
         if self.model_type == "optimal transport":
-            mu = t*x_1
+            mu = t*x_1 
         else : 
             raise RuntimeError("Not Implemented yet !!!")
         return mu
@@ -33,11 +33,16 @@ class FlowMatchingScheduler(nn.Module):
         pass
     
     def flow_map(self,t,x_1,sigma_min,x_0=None):
+        if t.dim() != x_1.dim():
+            t = t.view(x_0.shape[0],1,1,1)
         if x_0 is None:
             x_0 = torch.randn_like(x_1)
         return self.mu_t(t,x_1)+self.sigma_t(t,sigma_min) * x_0
     
     def vector_field(self,t,x_1,sigma_min,x_0=None):
+        if t.dim() != x_1.dim():
+            t = t.view(x_0.shape[0],1,1,1)
+            
         if self.model_type == "optimal transport":
             x_t = self.flow_map(t,x_1,sigma_min,x_0)
             return (x_1 -(1-sigma_min)*x_t) / (1-(1-sigma_min)*t)

@@ -72,7 +72,10 @@ def run(args):
             img = img * 2 - 1
             
             ## 1. 학습할 timestep t 정하기.
-            t = torch.rand((img.shape[0],),dtype=torch.float,device=device)
+            t = torch.rand((img.shape[0],),dtype=torch.float,device=device).view(img.shape[0])
+            
+            print(t.shape)
+            print(img.shape)
             
             ## 2. x_t에서의 vector field 예측하기
             x_0 = torch.randn_like(img)
