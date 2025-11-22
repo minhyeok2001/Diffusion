@@ -16,7 +16,7 @@ from torchvision.utils import make_grid, save_image
 def run(args):
     wandb.login(key="08198b7be027ddffa5241b9acf2f45cd4d42e993")
     
-    device = "mps"
+    device = "cuda"
     epoch = args.epoch 
     lr = args.lr 
     batch_size = args.batch_size
