@@ -43,16 +43,18 @@ Diffusion/
 
 **Environment** : 
 
-Use A100 on google colab, ~
+An A100 GPU on Google Colab was used for training.
+
+The code was developed and tested on a Mac beforehand.
 
 # 📚 Contents
 - [1. VAE](vae/)
 - [2. DDPM, DDIM, CFG](ddpm_ddim_cfg/)
 - [3. Stable Diffusion](stable_diffusion/)
 - [4. DPM-Solver](dpm_solver/)
+- [5. Flow Matching](flow_matching/)
 
 
-# 📈 Experimental Results
 
 
 
