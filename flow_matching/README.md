@@ -29,6 +29,43 @@
 </p>
 
 
+<p align="center">
+<img width="640" height="128" alt="image" src="https://github.com/user-attachments/assets/f2bbacf9-cedc-4a03-ab3f-a86e673514af" /><br>
+<img width="640" height="128" alt="image" src="https://github.com/user-attachments/assets/7dfeac0c-4227-4a79-a101-848db25d6564" /><br>
+   <i> Images from 20 step sampling (4steps interval)</i>
+</p>
+
+
+
+**Table 1. Result of sampling using Optimal transport**
+
+<table>
+  <tr>
+    <th> sampling steps </th>
+    <th>FID</th>
+  </tr>
+  <tr>
+    <td>5</td>
+    <td>294.72</td>
+  </tr>
+  <tr>
+    <td>10</td>
+    <td><b>206.12</b></td>
+  </tr>
+  <tr>
+    <td>20</td>
+    <td>249.16</td>
+  </tr>
+  <tr>
+    <td>50</td>
+    <td>244.37</td>
+  </tr>
+  <tr>
+    <td>100</td>
+    <td>243.42</td>
+  </tr>
+</table>
+
 
 
 ## Reference
