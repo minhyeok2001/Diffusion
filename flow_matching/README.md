@@ -16,7 +16,7 @@
 2. Predict u_t|1(x_t|x_1) using network instead of u_t(x_t), and use x_{t + delta t} = x_t + (delta t) * network_result to do Inference
 
 <p align="center">
-   <img width="662" height="269" alt="스크린샷 2025-11-22 오후 6 54 09" src="https://github.com/user-attachments/assets/19ef97d9-8ce8-487d-857e-6af12c94ece4" />
+   <img width="662" height="269" alt="스크린샷 2025-11-22 오후 6 54 09" src="https://github.com/user-attachments/assets/19ef97d9-8ce8-487d-857e-6af12c94ece4" /><br>
    <i> https://mlg.eng.cam.ac.uk/blog/2024/01/20/flow-matching </i>
 </p>
 
@@ -24,7 +24,7 @@
 
 13 hours training in Google Colab, using a single A100.
 <p align="center">
-<img width="750" height="304" alt="스크린샷 2025-11-24 오후 8 31 11" src="https://github.com/user-attachments/assets/686c867a-057a-44f7-90b2-1dc51540b9ee" />
+<img width="750" height="304" alt="스크린샷 2025-11-24 오후 8 31 11" src="https://github.com/user-attachments/assets/686c867a-057a-44f7-90b2-1dc51540b9ee" /><br>
    <i> loss curve - w&b </i>
 </p>
 
