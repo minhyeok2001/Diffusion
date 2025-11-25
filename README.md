@@ -14,7 +14,7 @@ All the equations required for each model are derived and explained in the READM
 
 
 
-**🔥All implementations are written entirely from scratch, without using any pretrained models or code generated/copied from GPT🔥**
+**🔥All implementations are written entirely from scratch, without using any code generated/copied from GPT🔥**
 
 
 
