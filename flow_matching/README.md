@@ -1,4 +1,34 @@
 # Flow matching
+Flow matching is a generative model derived from normalizing flows.
+
+Normalizing flows attempt to train a push-forward operator π that transports the probability of a base state to the probability of the real data state.
+
+Because this push-forward operator must be invertible and is often intractable to design directly, 
+
+Continuous Normalizing Flows (CNFs) instead use a residual flow rather than a single push-forward operator.
+
+This means that a CNF represents the push-forward map as the composition of many transformations π_t over time.
+
+In this formulation, we can derive that the residual update is equal to the time derivative of x_t.
+
+Using the Fokker–Planck equation, we can relate this residual update to the evolution of the probability density, 
+
+allowing us to represent the probability of the real data state using residual updates.
+
+However, CNFs are computationally expensive because their training objective requires repeatedly solving an ODE. 
+
+To address this limitation, Conditional Flow Matching was introduced.
+
+In conditional flow matching, we define a path, a flow map, and a vector field that are conditioned on real data samples, 
+
+enabling us to assume ground-truth targets for supervision.
+
+In this project, we consider the Optimal Transport case with a linear path, 
+
+though other paths—such as diffusion-style stochastic paths—could also can be used.
+
+Surprisingly, the loss function for training a network to predict the unconditional vector field u_t is exactly the same as the loss for predicting the conditional vector field u_{t|1}, and this equivalence is mathematically proved below.
+
 
 ## Process
 ![Flow matching-1](https://github.com/user-attachments/assets/ebc549ba-2639-4132-96f2-4f7068811434)
