@@ -129,6 +129,8 @@ class Attention(nn.Module):
     def __init__(self,c_hidden,num_head=2):
         super().__init__()
         
+        self.c_hidden = c_hidden ## 이거 나중에 상속시에 x.__dict__로 확인하기 
+        
         self.head_dim = c_hidden // num_head
         self.num_head = num_head
         ## 여기에는 입력 128 128 HW 기준으로 /8 = 16 이 만들어짐
