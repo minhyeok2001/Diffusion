@@ -19,6 +19,7 @@ In this section, I focus on the aspects that are unique to Stable Diffusion, sin
 
 There are a few key points worth noting in Stable Diffusion.
 
+## Key Points
 ### 1. VAE objectives
 
 <p align="center">
@@ -62,11 +63,30 @@ The last term is a lightly weighted KL divergence, regulating the latent distrib
 
 Unlike classical VAEs, this KL term is used with very small weight in practical aspects.
 
+----
+
 ### 2. How to inject conditions ?
 
+There are two general conditioning mechanisms in Latent Diffusion Models...
 
-### 3. 
+1. Concatenating conditioning maps to the latent representation -> for text-to-image, Layout-to-image ...
+
+2. Injecting conditioning through cross-attention inside the UNet -> for Super-resolution, inpainting ...
+
+Additionally, in case of text-to-image, The text embeddings produced by an external encoder are used in two places.
+
+They are fed into the cross-attention layers of the UNet, and also reused for classifier-free guidance !!
+
+## Code structure
+
+I'll use pretrained vae and clip for text2image in this project
+
+vae and clip 
+
+
 
 ## Reference
+
 original paper - https://arxiv.org/abs/2112.10752
 LPIPS - https://arxiv.org/abs/1801.03924
+
