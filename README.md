@@ -29,15 +29,7 @@ Since this is a generative modeling task rather than a classification one, only 
 
 _cat : 5153, dog : 4739, wild : 4738_
 
-# 📁 Directory
 
-```bash
-Diffusion/
-│
-├── data/
-│   ├── dataset
-│   └── dataloader.py        
-```
 
 # Training Setup
 
@@ -50,7 +42,7 @@ The code was developed and tested on a Mac beforehand.
 # 📚 Contents
 - [1. VAE](vae/)
 - [2. DDPM, DDIM, CFG](ddpm_ddim_cfg/)
-- [3. Stable Diffusion](stable_diffusion/)
+- [3. Stable Diffusion](stable_diffusion/) -> To Be Updated
 - [4. DPM-Solver](dpm_solver/)
 - [5. Flow Matching](flow_matching/)
 
